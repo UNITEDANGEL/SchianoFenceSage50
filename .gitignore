@@ -1,0 +1,15 @@
+# Local/runtime junk
+__pycache__/
+*.pyc
+*.log
+*.tmp
+_write_test.txt
+# Generated quote exports/logs
+app/exports/
+sage_export/*.csv
+logs/*.log
+# Keep backups local unless deliberately added later
+backups/
+# Experimental rebuild, not main app
+app_single_screen/
+experiments/

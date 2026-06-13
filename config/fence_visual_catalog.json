@@ -1,0 +1,42 @@
+﻿{
+  "version": "10",
+  "note": "Fence visual catalog used for in-app preview and quote printing. Replace placeholder SVG/JPG/PNG files with real product images later.",
+  "catalog": [
+    {
+      "manufacturer": "Internal / Sage",
+      "material": "PVC/Vinyl",
+      "style": "Lakeland",
+      "color": "White",
+      "height_ft": "6",
+      "image_path": "catalog_images/lakeland_white_6ft.svg",
+      "caption": "Lakeland 6 ft White PVC Privacy"
+    },
+    {
+      "manufacturer": "Internal / Sage",
+      "material": "PVC/Vinyl",
+      "style": "Hampton",
+      "color": "White",
+      "height_ft": "6",
+      "image_path": "catalog_images/hampton_white_6ft.svg",
+      "caption": "Hampton 6 ft White PVC"
+    },
+    {
+      "manufacturer": "Internal / Sage",
+      "material": "PVC/Vinyl",
+      "style": "Malibu",
+      "color": "White",
+      "height_ft": "4",
+      "image_path": "catalog_images/malibu_white_4ft.svg",
+      "caption": "Malibu 4 ft White PVC"
+    },
+    {
+      "manufacturer": "Country Estate Fence / CEF",
+      "material": "Vinyl",
+      "style": "Brighton",
+      "color": "White",
+      "height_ft": "6",
+      "image_path": "catalog_images/brighton_white_6ft.svg",
+      "caption": "Brighton 6 ft White Vinyl"
+    }
+  ]
+}

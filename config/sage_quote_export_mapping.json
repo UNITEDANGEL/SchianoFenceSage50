@@ -1,0 +1,22 @@
+﻿{
+  "version": "1",
+  "export_type": "sage_50_quote",
+  "mode": "template_pending",
+  "note": "Export one sample quote from Sage 50 and place it in sage_export/sample_sage_quote_export.csv so the app can match the exact Sage field order.",
+  "required_next_file": "G:\\My Drive\\SAGE_50_INTEGRATE_PROJECT\\sage_export\\sample_sage_quote_export.csv",
+  "starter_fields": [
+    "QuoteNumber",
+    "QuoteDate",
+    "CustomerID",
+    "CustomerName",
+    "ShipToAddress",
+    "ItemID",
+    "Description",
+    "Quantity",
+    "UnitPrice",
+    "LineTotal",
+    "Taxable",
+    "JobName",
+    "Notes"
+  ]
+}

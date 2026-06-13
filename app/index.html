@@ -1,0 +1,1625 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sage 50 Fence Quote Builder V4</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root {
+  --bg: #eef2f7;
+  --card: #ffffff;
+  --ink: #111827;
+  --muted: #6b7280;
+  --line: #d1d5db;
+  --dark: #111827;
+  --blue: #2563eb;
+  --green: #047857;
+  --red: #991b1b;
+  --orange: #b45309;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+}
+header {
+  background: var(--dark);
+  color: white;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+header h1 {
+  margin: 0;
+  font-size: 22px;
+}
+header .sub {
+  font-size: 12px;
+  color: #d1d5db;
+  margin-top: 3px;
+}
+.shell {
+  display: grid;
+  grid-template-columns: 450px 1fr 500px;
+  gap: 12px;
+  padding: 12px;
+}
+.card {
+  background: var(--card);
+  border-radius: 12px;
+  box-shadow: 0 1px 5px rgba(0,0,0,.12);
+  overflow: hidden;
+}
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f8fafc;
+}
+.tab {
+  width: auto;
+  margin: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #111827;
+  border-right: 1px solid #e5e7eb;
+  padding: 10px 11px;
+  font-size: 12px;
+}
+.tab.active {
+  background: #111827;
+  color: white;
+}
+.card h2 {
+  margin: 0;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 17px;
+}
+.card-body { padding: 14px; }
+.tab-page { display: none; }
+.tab-page.active { display: block; }
+label {
+  display: block;
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #374151;
+}
+input, select, textarea, button {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  font-size: 14px;
+}
+textarea { resize: vertical; }
+button {
+  border: none;
+  background: #1f2937;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+}
+button:hover { opacity: .92; }
+button.blue { background: var(--blue); }
+button.green { background: var(--green); }
+button.red { background: var(--red); }
+button.gray { background: #64748b; }
+button.orange { background: var(--orange); }
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.row3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+.actions3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+.small {
+  font-size: 12px;
+  color: var(--muted);
+}
+canvas {
+  display: block;
+  width: 100%;
+  height: 610px;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  cursor: crosshair;
+}
+.toolbar {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 7px;
+  padding: 10px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f8fafc;
+}
+.toolbar button {
+  font-size: 12px;
+  padding: 7px;
+}
+.pill {
+  display: inline-block;
+  padding: 3px 8px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  font-size: 12px;
+  margin: 2px;
+}
+.pill.dark {
+  background: #111827;
+  color: white;
+}
+.kpi {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.kpi div {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  padding: 10px;
+  border-radius: 9px;
+}
+.kpi strong {
+  display: block;
+  font-size: 18px;
+  margin-top: 4px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-top: 10px;
+}
+th, td {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 7px 5px;
+  text-align: left;
+  vertical-align: top;
+}
+th { background: #f8fafc; }
+.totalBox {
+  margin-top: 12px;
+  padding: 12px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 10px;
+}
+.totalBox .big {
+  font-size: 26px;
+  font-weight: bold;
+}
+.segment-row, .gate-row, .addon-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 75px;
+  gap: 6px;
+  align-items: end;
+  margin-bottom: 6px;
+}
+.segment-row button, .gate-row button, .addon-row button { padding: 8px 4px; }
+hr {
+  border: 0;
+  border-top: 1px solid #e5e7eb;
+  margin: 14px 0;
+}
+.notice {
+  padding: 10px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  font-size: 13px;
+}
+.good {
+  padding: 10px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 8px;
+  font-size: 13px;
+}
+.warn {
+  padding: 10px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+  font-size: 13px;
+}
+.select-line {
+  padding: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-top: 8px;
+  background: #f8fafc;
+}
+@media (max-width: 1250px) {
+  .shell { grid-template-columns: 1fr; }
+  canvas { height: 520px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Sage 50 Fence Quote Builder</h1>
+    <div class="sub">Version 4 - real Sage inventory codes for sections, posts, caps, concrete, gates, and quote export</div>
+  </div>
+  <div>
+    <span class="pill">Local App</span>
+    <span class="pill">Real Sage Codes</span>
+    <span class="pill">Quote CSV</span>
+  </div>
+</header>
+
+<div class="shell">
+  <section class="card">
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('job', this)">Job</button>
+      <button class="tab" onclick="showTab('system', this)">Fence System</button>
+      <button class="tab" onclick="showTab('layout', this)">Layout</button>
+      <button class="tab" onclick="showTab('gates', this)">Gates</button>
+      <button class="tab" onclick="showTab('pricing', this)">Pricing</button>
+      <button class="tab" onclick="showTab('inventory', this)">Inventory</button>
+      <button class="tab" onclick="showTab('addons', this)">Add-ons</button>
+    </div>
+
+    <div class="card-body">
+      <div id="tab-job" class="tab-page active">
+        <h3>Customer / Job Info</h3>
+
+        <label>Customer Name</label>
+        <input id="customerName" value="Sample Customer">
+
+        <label>Sage Customer ID</label>
+        <input id="customerId" value="CASH">
+
+        <label>Phone</label>
+        <input id="customerPhone">
+
+        <label>Email</label>
+        <input id="customerEmail">
+
+        <label>Job Address / Ship To</label>
+        <input id="jobAddress">
+
+        <div class="row">
+          <div>
+            <label>Quote Number</label>
+            <input id="quoteNumber">
+          </div>
+          <div>
+            <label>Quote Date</label>
+            <input id="quoteDate" type="date">
+          </div>
+        </div>
+
+        <label>Salesperson / Estimator</label>
+        <input id="estimatorName">
+
+        <label>Customer Notes</label>
+        <textarea id="notes" rows="4"></textarea>
+      </div>
+
+      <div id="tab-system" class="tab-page">
+        <h3>Fence System</h3>
+        <p class="small">Pick the fence style first. The app will use your real inventory descriptions to find matching sections, posts, caps, concrete, and gates.</p>
+
+        <div id="inventoryLoadStatus" class="notice">Inventory loading...</div>
+
+        <div class="row">
+          <div>
+            <label>Material</label>
+            <select id="systemMaterial" onchange="refreshSystemOptions()">
+              <option value="">Any</option>
+              <option value="PVC/Vinyl" selected>PVC / Vinyl</option>
+              <option value="Wood">Wood</option>
+              <option value="Aluminum">Aluminum</option>
+              <option value="Chain Link">Chain Link</option>
+            </select>
+          </div>
+          <div>
+            <label>Style / Family</label>
+            <select id="systemStyle" onchange="refreshSystemOptions()"></select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Color</label>
+            <select id="systemColor" onchange="refreshSystemOptions()">
+              <option value="">Any</option>
+              <option value="White" selected>White</option>
+              <option value="Almond">Almond</option>
+              <option value="Adobe">Adobe</option>
+              <option value="Gray">Gray</option>
+              <option value="Black">Black</option>
+              <option value="Green">Green</option>
+            </select>
+          </div>
+          <div>
+            <label>Height</label>
+            <select id="systemHeight" onchange="refreshSystemOptions()">
+              <option value="">Any</option>
+              <option value="3">3 ft</option>
+              <option value="4">4 ft</option>
+              <option value="4.5">54 in / 4.5 ft</option>
+              <option value="5">5 ft</option>
+              <option value="6" selected>6 ft</option>
+              <option value="7">7 ft</option>
+              <option value="8">8 ft</option>
+            </select>
+          </div>
+        </div>
+
+        <label>Section Item</label>
+        <select id="sectionItem"></select>
+
+        <div class="row">
+          <div>
+            <label>Line Post Item</label>
+            <select id="linePostItem"></select>
+          </div>
+          <div>
+            <label>Corner Post Item</label>
+            <select id="cornerPostItem"></select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>End Post Item</label>
+            <select id="endPostItem"></select>
+          </div>
+          <div>
+            <label>Cap Item</label>
+            <select id="capItem"></select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Concrete Item</label>
+            <select id="concreteItem"></select>
+          </div>
+          <div>
+            <label>Section Width Ft</label>
+            <input id="sectionWidthFt" type="number" min="1" step="0.5" value="8">
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="blue" onclick="refreshSystemOptions()">Refresh Matches</button>
+          <button class="green" onclick="calculateQuote()">Calculate With Codes</button>
+        </div>
+
+        <div id="systemWarnings" style="margin-top:10px;"></div>
+      </div>
+
+      <div id="tab-layout" class="tab-page">
+        <h3>Layout Rules</h3>
+
+        <div class="row">
+          <div>
+            <label>Layout Type</label>
+            <select id="layoutClosed" onchange="rebuildSegments(); draw();">
+              <option value="open" selected>Open shape</option>
+              <option value="closed">Closed shape / full enclosure</option>
+            </select>
+          </div>
+          <div>
+            <label>Post Math Mode</label>
+            <select id="postMathMode">
+              <option value="panels_plus_one" selected>Panels + 1</option>
+              <option value="by_segment">By Segment</option>
+            </select>
+          </div>
+        </div>
+
+        <label>Preset Shape</label>
+        <select id="presetShape">
+          <option value="">Manual drawing</option>
+          <option value="straight">Straight line</option>
+          <option value="l">L-shape</option>
+          <option value="u">U-shape</option>
+          <option value="box">Box / rectangle</option>
+          <option value="zigzag">Multi-section / zigzag</option>
+        </select>
+
+        <button class="blue" onclick="applyPresetShape()">Load Preset Shape</button>
+
+        <hr>
+
+        <h3>Site Conditions</h3>
+
+        <div class="row">
+          <div>
+            <label>Terrain</label>
+            <select id="terrain">
+              <option value="normal" selected>Normal</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+              <option value="rocky">Rocky / difficult</option>
+            </select>
+          </div>
+          <div>
+            <label>Access</label>
+            <select id="access">
+              <option value="normal" selected>Normal</option>
+              <option value="tight">Tight access</option>
+              <option value="carry">Long carry</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Removal Needed</label>
+            <select id="removalNeeded">
+              <option value="no" selected>No</option>
+              <option value="yes">Yes</option>
+            </select>
+          </div>
+          <div>
+            <label>Removal LF Override</label>
+            <input id="removalLf" type="number" min="0" step="1" placeholder="blank = total LF">
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-gates" class="tab-page">
+        <h3>Gates</h3>
+        <p class="small">Pick gate item from real Sage inventory if possible.</p>
+
+        <label>Gate Inventory Item</label>
+        <select id="newGateItem"></select>
+
+        <div class="row">
+          <div>
+            <label>Quantity</label>
+            <input id="newGateQty" type="number" min="1" step="1" value="1">
+          </div>
+          <div>
+            <label>Manual Price Override</label>
+            <input id="newGatePriceOverride" type="number" min="0" step="0.01" placeholder="blank = retail">
+          </div>
+        </div>
+
+        <button class="green" onclick="addGate()">Add Gate</button>
+
+        <div id="gateList"></div>
+      </div>
+
+      <div id="tab-pricing" class="tab-page">
+        <h3>Pricing Controls</h3>
+
+        <div class="row">
+          <div>
+            <label>Labor Item Code</label>
+            <input id="laborItemCode" value="LABOR-FENCE-INSTALL">
+          </div>
+          <div>
+            <label>Labor Price per LF</label>
+            <input id="laborPerLf" type="number" min="0" step="0.01" value="24">
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Concrete Bags per Post</label>
+            <input id="concreteBagsPerPost" type="number" min="0" step="0.25" value="1">
+          </div>
+          <div>
+            <label>Taxable?</label>
+            <select id="taxableFlag">
+              <option value="Y" selected>Y</option>
+              <option value="N">N</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Markup %</label>
+            <input id="markupPct" type="number" min="0" step="0.1" value="0">
+          </div>
+          <div>
+            <label>Tax %</label>
+            <input id="taxPct" type="number" min="0" step="0.1" value="0">
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Discount $</label>
+            <input id="discountAmount" type="number" min="0" step="0.01" value="0">
+          </div>
+          <div>
+            <label>Deposit %</label>
+            <input id="depositPct" type="number" min="0" max="100" step="1" value="50">
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-inventory" class="tab-page">
+        <h3>Sage Inventory Search</h3>
+
+        <label>Search Item ID / Description</label>
+        <input id="inventorySearch" placeholder="Example: concrete, 5LP8, gate, Hampton, Lakeland" oninput="searchInventory()">
+
+        <div class="row">
+          <div>
+            <label>Category Filter</label>
+            <select id="inventoryCategory" onchange="searchInventory()">
+              <option value="">All</option>
+              <option value="Section">Section</option>
+              <option value="Line Post">Line Post</option>
+              <option value="Corner Post">Corner Post</option>
+              <option value="End Post">End Post</option>
+              <option value="Cap">Cap</option>
+              <option value="Concrete">Concrete</option>
+              <option value="Gate">Gate</option>
+              <option value="Hinge">Hinge</option>
+              <option value="Latch">Latch</option>
+            </select>
+          </div>
+          <div>
+            <label>Limit</label>
+            <input id="inventoryLimit" type="number" min="5" max="200" value="40" oninput="searchInventory()">
+          </div>
+        </div>
+
+        <div id="inventoryStatus" class="notice" style="margin-top:10px;">Inventory not loaded.</div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Item ID</th>
+              <th>Description</th>
+              <th>Category</th>
+              <th>Retail</th>
+            </tr>
+          </thead>
+          <tbody id="inventoryResults"></tbody>
+        </table>
+      </div>
+
+      <div id="tab-addons" class="tab-page">
+        <h3>Add-ons / Extras</h3>
+
+        <label>Pick Inventory Item</label>
+        <select id="addonInventoryItem"></select>
+
+        <div class="row3">
+          <div>
+            <label>Qty</label>
+            <input id="addonQty" type="number" min="0" step="0.01" value="1">
+          </div>
+          <div>
+            <label>Unit</label>
+            <input id="addonUnit" value="EA">
+          </div>
+          <div>
+            <label>Price Override</label>
+            <input id="addonPriceOverride" type="number" min="0" step="0.01" placeholder="blank = retail">
+          </div>
+        </div>
+
+        <button class="green" onclick="addAddon()">Add Item</button>
+
+        <div id="addonList"></div>
+      </div>
+
+      <hr>
+
+      <div class="actions">
+        <button class="green" onclick="calculateQuote()">Calculate</button>
+        <button class="blue" onclick="exportSageCsv()">Sage Quote CSV</button>
+        <button class="gray" onclick="exportJobJson()">Job JSON</button>
+        <button class="red" onclick="resetAll()">Reset</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Drawing / Layout</h2>
+
+    <div class="toolbar">
+      <button onclick="setDrawMode('draw')" class="blue">Draw</button>
+      <button onclick="undoPoint()">Undo Point</button>
+      <button onclick="clearDrawing()" class="red">Clear</button>
+      <button onclick="applyPresetShape()">Preset</button>
+      <button onclick="calculateQuote()" class="green">Calculate</button>
+    </div>
+
+    <canvas id="canvas" width="1000" height="610"></canvas>
+
+    <div class="card-body">
+      <div class="notice">
+        Click points to draw the fence. Enter the real footage for each segment below. Example L-shape 48 + 48 with 8 ft sections = 12 sections, 1 corner, 2 ends, 10 line posts.
+      </div>
+
+      <h3>Fence Segments</h3>
+      <div id="segments"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Quote / Sage Lines</h2>
+    <div class="card-body">
+      <div id="quoteBadges"></div>
+
+      <div class="kpi">
+        <div>Total LF <strong id="kpiLf">0</strong></div>
+        <div>Total Posts <strong id="kpiPosts">0</strong></div>
+        <div>Panels/Sections <strong id="kpiSections">0</strong></div>
+        <div>Concrete Bags <strong id="kpiConcrete">0</strong></div>
+      </div>
+
+      <div class="totalBox">
+        <div>Estimated Total</div>
+        <div class="big" id="kpiTotal">$0.00</div>
+        <div class="small">Deposit Due: <span id="kpiDeposit">$0.00</span></div>
+      </div>
+
+      <h3>Real Sage Quote Lines</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Item ID</th>
+            <th>Description</th>
+            <th>Qty</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody id="lineItems"></tbody>
+      </table>
+
+      <h3>Post / Material Counts</h3>
+      <table>
+        <tbody id="materialCounts"></tbody>
+      </table>
+
+      <div id="missingCodes" style="margin-top:10px;"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+let inventoryItems = [];
+let points = [];
+let segmentLengths = [];
+let gates = [];
+let addons = [];
+let latestQuote = null;
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+document.addEventListener("DOMContentLoaded", async function() {
+  document.getElementById("quoteDate").value = new Date().toISOString().slice(0, 10);
+  document.getElementById("quoteNumber").value = "Q-" + new Date().toISOString().slice(0,10).replaceAll("-","") + "-001";
+  await loadInventory();
+  applyPresetShapeValue("l");
+  rebuildSegments();
+  draw();
+});
+
+async function loadInventory() {
+  const paths = [
+    "../inventory/classified_inventory.json",
+    "inventory/classified_inventory.json",
+    "../inventory/schiano_inventory_items.json"
+  ];
+
+  for (const path of paths) {
+    try {
+      const res = await fetch(path);
+      if (!res.ok) continue;
+      const data = await res.json();
+      inventoryItems = Array.isArray(data) ? data.map(normalizeItem) : [];
+      document.getElementById("inventoryLoadStatus").className = "good";
+      document.getElementById("inventoryLoadStatus").textContent = "Loaded " + inventoryItems.length + " classified Sage inventory items.";
+      document.getElementById("inventoryStatus").textContent = "Loaded " + inventoryItems.length + " items.";
+      populateStyleList();
+      refreshSystemOptions();
+      populateGenericInventorySelects();
+      searchInventory();
+      return;
+    } catch (err) {}
+  }
+
+  document.getElementById("inventoryLoadStatus").className = "warn";
+  document.getElementById("inventoryLoadStatus").textContent = "Could not load inventory. Start with .\\Start-App.ps1 so browser can read files.";
+}
+
+function normalizeItem(x) {
+  return {
+    ItemID: x.ItemID || x.item_id || x["Item ID"] || x.id || "",
+    Description: x.Description || x.description || "",
+    ItemClass: x.ItemClass || x.item_class || x["Item Class"] || "",
+    Category: x.Category || "",
+    Material: x.Material || "",
+    Style: x.Style || "",
+    Color: x.Color || "",
+    HeightFt: x.HeightFt || "",
+    WidthFt: x.WidthFt || "",
+    Retail: Number(x.Retail || x.retail || x["RETAIL 1"] || 0),
+    Cost: Number(x.Cost || x.cost || x["Last Unit Cost"] || 0)
+  };
+}
+
+function showTab(name, btn) {
+  document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+  document.querySelectorAll(".tab-page").forEach(x => x.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+  document.getElementById("tab-" + name).classList.add("active");
+}
+
+function showTabByName(name) {
+  document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+  document.querySelectorAll(".tab-page").forEach(x => x.classList.remove("active"));
+  document.getElementById("tab-" + name).classList.add("active");
+  document.querySelectorAll(".tab").forEach(btn => {
+    if ((btn.textContent || "").toLowerCase().includes(name.toLowerCase())) btn.classList.add("active");
+  });
+}
+
+function populateStyleList() {
+  const sel = document.getElementById("systemStyle");
+  const styles = [...new Set(inventoryItems.filter(x => x.Style).map(x => x.Style))].sort();
+  sel.innerHTML = '<option value="">Any Style</option>';
+  styles.forEach(s => {
+    const opt = document.createElement("option");
+    opt.value = s;
+    opt.textContent = s;
+    sel.appendChild(opt);
+  });
+
+  const preferred = styles.find(s => s.toLowerCase() === "lakeland") || styles.find(s => s.toLowerCase() === "hampton") || "";
+  if (preferred) sel.value = preferred;
+}
+
+function populateGenericInventorySelects() {
+  fillSelect("addonInventoryItem", inventoryItems.slice(0, 500), true);
+}
+
+function refreshSystemOptions() {
+  if (!inventoryItems.length) return;
+
+  const material = document.getElementById("systemMaterial").value;
+  const style = document.getElementById("systemStyle").value;
+  const color = document.getElementById("systemColor").value;
+  const height = document.getElementById("systemHeight").value;
+
+  const sectionItems = findItems({ category: "Section", material, style, color, height });
+  const linePosts = findItems({ category: "Line Post", material, color, height: "" });
+  const cornerPosts = findItems({ category: "Corner Post", material, color, height: "" });
+  const endPosts = findItems({ category: "End Post", material, color, height: "" });
+  const caps = findItems({ category: "Cap", material, color, height: "" });
+  const concrete = findItems({ category: "Concrete" });
+  const gatesFound = findItems({ category: "Gate", material, style, color, height });
+
+  fillSelect("sectionItem", sectionItems, false);
+  fillSelect("linePostItem", linePosts, false);
+  fillSelect("cornerPostItem", cornerPosts, false);
+  fillSelect("endPostItem", endPosts, false);
+  fillSelect("capItem", caps, true);
+  fillSelect("concreteItem", concrete, false);
+  fillSelect("newGateItem", gatesFound.length ? gatesFound : findItems({ category: "Gate", material, color, height }), true);
+
+  autoSectionWidth();
+
+  const warnings = [];
+  if (!sectionItems.length) warnings.push("No matching section found. Try Style = Any or search manually in Inventory.");
+  if (!linePosts.length) warnings.push("No matching line post found.");
+  if (!cornerPosts.length) warnings.push("No matching corner post found.");
+  if (!endPosts.length) warnings.push("No matching end post found.");
+  if (!concrete.length) warnings.push("No concrete item found.");
+
+  document.getElementById("systemWarnings").innerHTML = warnings.length
+    ? '<div class="warn">' + warnings.join("<br>") + '</div>'
+    : '<div class="good">System match ready. Quote will use real Sage item codes.</div>';
+}
+
+function findItems(filter) {
+  return inventoryItems.filter(item => {
+    if (filter.category && item.Category !== filter.category) return false;
+    if (filter.material && item.Material && item.Material !== filter.material) return false;
+    if (filter.style && item.Style && item.Style !== filter.style) return false;
+    if (filter.color && item.Color && item.Color !== filter.color) return false;
+    if (filter.height && item.HeightFt && String(item.HeightFt) !== String(filter.height)) return false;
+    return true;
+  }).sort((a, b) => scoreItem(b, filter) - scoreItem(a, filter));
+}
+
+function scoreItem(item, filter) {
+  let score = 0;
+  const text = (item.ItemID + " " + item.Description).toUpperCase();
+
+  if (filter.category && item.Category === filter.category) score += 20;
+  if (filter.material && item.Material === filter.material) score += 10;
+  if (filter.style && item.Style === filter.style) score += 10;
+  if (filter.color && item.Color === filter.color) score += 5;
+  if (filter.height && String(item.HeightFt) === String(filter.height)) score += 8;
+  if (text.includes("WHITE")) score += 1;
+  if (item.Retail > 0) score += 1;
+
+  return score;
+}
+
+function fillSelect(id, items, allowBlank) {
+  const sel = document.getElementById(id);
+  if (!sel) return;
+  sel.innerHTML = "";
+  if (allowBlank) {
+    const blank = document.createElement("option");
+    blank.value = "";
+    blank.textContent = "-- none / pick later --";
+    sel.appendChild(blank);
+  }
+
+  items.slice(0, 250).forEach(item => {
+    const opt = document.createElement("option");
+    opt.value = item.ItemID;
+    opt.textContent = item.ItemID + " - " + item.Description + " ($" + money(item.Retail) + ")";
+    opt.dataset.item = JSON.stringify(item);
+    sel.appendChild(opt);
+  });
+}
+
+function selectedItem(id) {
+  const sel = document.getElementById(id);
+  if (!sel || !sel.value) return null;
+  const opt = sel.options[sel.selectedIndex];
+  if (!opt || !opt.dataset.item) {
+    return inventoryItems.find(x => x.ItemID === sel.value) || null;
+  }
+  return JSON.parse(opt.dataset.item);
+}
+
+function autoSectionWidth() {
+  const section = selectedItem("sectionItem");
+  if (section && section.WidthFt) {
+    document.getElementById("sectionWidthFt").value = section.WidthFt;
+  }
+}
+
+document.addEventListener("change", function(e) {
+  if (e.target && e.target.id === "sectionItem") autoSectionWidth();
+});
+
+canvas.addEventListener("click", function(e) {
+  const rect = canvas.getBoundingClientRect();
+  const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+  points.push({x, y});
+  rebuildSegments();
+  draw();
+});
+
+function applyPresetShape() {
+  applyPresetShapeValue(document.getElementById("presetShape").value);
+}
+
+function applyPresetShapeValue(p) {
+  if (!p) return;
+
+  if (p === "straight") {
+    points = [{x:170,y:310},{x:830,y:310}];
+    document.getElementById("layoutClosed").value = "open";
+    segmentLengths = [48];
+  }
+
+  if (p === "l") {
+    points = [{x:260,y:180},{x:260,y:460},{x:760,y:460}];
+    document.getElementById("layoutClosed").value = "open";
+    segmentLengths = [48, 48];
+  }
+
+  if (p === "u") {
+    points = [{x:260,y:160},{x:260,y:450},{x:740,y:450},{x:740,y:160}];
+    document.getElementById("layoutClosed").value = "open";
+    segmentLengths = [48, 96, 48];
+  }
+
+  if (p === "box") {
+    points = [{x:260,y:160},{x:740,y:160},{x:740,y:450},{x:260,y:450}];
+    document.getElementById("layoutClosed").value = "closed";
+    segmentLengths = [48, 48, 48, 48];
+  }
+
+  if (p === "zigzag") {
+    points = [{x:150,y:180},{x:330,y:280},{x:500,y:210},{x:680,y:340},{x:850,y:280}];
+    document.getElementById("layoutClosed").value = "open";
+    segmentLengths = [32, 40, 32, 40];
+  }
+
+  rebuildSegments();
+  draw();
+}
+
+function rebuildSegments() {
+  const closed = document.getElementById("layoutClosed").value === "closed";
+  let count = Math.max(0, points.length - 1);
+  if (closed && points.length > 2) count += 1;
+
+  while (segmentLengths.length < count) segmentLengths.push("");
+  while (segmentLengths.length > count) segmentLengths.pop();
+
+  const holder = document.getElementById("segments");
+  holder.innerHTML = "";
+
+  for (let i = 0; i < count; i++) {
+    const div = document.createElement("div");
+    div.className = "segment-row";
+    div.innerHTML = `
+      <label>Seg ${i + 1}</label>
+      <input type="number" min="0" step="0.01" value="${segmentLengths[i] || ""}" placeholder="Length in feet" onchange="segmentLengths[${i}] = this.value; draw();">
+      <button class="gray" onclick="segmentLengths[${i}]=''; rebuildSegments(); draw();">Clear</button>
+    `;
+    holder.appendChild(div);
+  }
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.strokeStyle = "#e5e7eb";
+  ctx.lineWidth = 1;
+  for (let x = 0; x < canvas.width; x += 25) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, canvas.height);
+    ctx.stroke();
+  }
+  for (let y = 0; y < canvas.height; y += 25) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(canvas.width, y);
+    ctx.stroke();
+  }
+
+  if (points.length > 0) {
+    ctx.strokeStyle = "#111827";
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+    if (document.getElementById("layoutClosed").value === "closed" && points.length > 2) ctx.closePath();
+    ctx.stroke();
+
+    ctx.font = "13px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    points.forEach((p, i) => {
+      ctx.fillStyle = "#2563eb";
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 9, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "white";
+      ctx.fillText(String(i + 1), p.x, p.y);
+    });
+
+    drawSegmentLabels();
+  }
+}
+
+function drawSegmentLabels() {
+  for (let i = 0; i < segmentLengths.length; i++) {
+    const a = points[i];
+    const b = (i === points.length - 1) ? points[0] : points[i + 1];
+    if (!a || !b) continue;
+
+    const mx = (a.x + b.x) / 2;
+    const my = (a.y + b.y) / 2;
+
+    ctx.fillStyle = "#fef3c7";
+    ctx.strokeStyle = "#f59e0b";
+    ctx.lineWidth = 1;
+    roundRect(ctx, mx - 38, my - 14, 76, 28, 6);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "#111827";
+    ctx.font = "12px Arial";
+    const len = segmentLengths[i] ? segmentLengths[i] + " ft" : "Seg " + (i + 1);
+    ctx.fillText(len, mx, my);
+  }
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function undoPoint() {
+  points.pop();
+  rebuildSegments();
+  draw();
+}
+
+function clearDrawing() {
+  points = [];
+  segmentLengths = [];
+  rebuildSegments();
+  draw();
+}
+
+function setDrawMode(mode) {
+  draw();
+}
+
+function getSegmentFeet() {
+  return segmentLengths.map(x => Number(x || 0)).filter(x => x > 0);
+}
+
+function calculateLayoutCounts() {
+  const feet = getSegmentFeet();
+  const totalLf = feet.reduce((a,b) => a + b, 0);
+  const sectionWidth = Number(document.getElementById("sectionWidthFt").value || 8);
+  const closed = document.getElementById("layoutClosed").value === "closed";
+  const sectionsPerSegment = feet.map(x => Math.ceil(x / sectionWidth));
+  const totalSections = sectionsPerSegment.reduce((a,b) => a + b, 0);
+
+  let totalPosts;
+  if (closed) {
+    totalPosts = totalSections;
+  } else {
+    totalPosts = totalSections + 1;
+  }
+
+  const segmentCount = feet.length;
+  const cornerPosts = closed ? Math.max(segmentCount, 0) : Math.max(segmentCount - 1, 0);
+  const endPosts = closed ? 0 : (segmentCount > 0 ? 2 : 0);
+  const linePosts = Math.max(0, totalPosts - cornerPosts - endPosts);
+
+  return {
+    totalLf,
+    sectionWidth,
+    totalSections,
+    totalPosts,
+    linePosts,
+    cornerPosts,
+    endPosts,
+    sectionsPerSegment,
+    segmentCount,
+    closed
+  };
+}
+
+function makeLine(item, qty, unit, fallbackCode, fallbackDescription, unitPriceOverride) {
+  const code = item ? item.ItemID : fallbackCode;
+  const desc = item ? item.Description : fallbackDescription;
+  const price = unitPriceOverride !== undefined && unitPriceOverride !== null ? unitPriceOverride : (item ? Number(item.Retail || 0) : 0);
+  return {
+    code,
+    item: desc,
+    qty: round2(qty),
+    unit,
+    unitPrice: round2(price),
+    total: round2(qty * price),
+    source: item ? "Sage Inventory" : "Manual/Fallback"
+  };
+}
+
+function calculateQuote() {
+  const counts = calculateLayoutCounts();
+
+  const section = selectedItem("sectionItem");
+  const linePost = selectedItem("linePostItem");
+  const cornerPost = selectedItem("cornerPostItem");
+  const endPost = selectedItem("endPostItem");
+  const cap = selectedItem("capItem");
+  const concrete = selectedItem("concreteItem");
+
+  const concreteBagsPerPost = Number(document.getElementById("concreteBagsPerPost").value || 0);
+  const concreteQty = Math.ceil(counts.totalPosts * concreteBagsPerPost);
+
+  const laborPerLf = Number(document.getElementById("laborPerLf").value || 0);
+  const laborCode = document.getElementById("laborItemCode").value || "LABOR-FENCE-INSTALL";
+
+  let multiplier = 1;
+  const terrain = document.getElementById("terrain").value;
+  const access = document.getElementById("access").value;
+
+  if (terrain === "medium") multiplier += 0.12;
+  if (terrain === "hard") multiplier += 0.25;
+  if (terrain === "rocky") multiplier += 0.40;
+  if (access === "tight") multiplier += 0.10;
+  if (access === "carry") multiplier += 0.18;
+
+  const lineItems = [];
+
+  if (counts.totalSections > 0) lineItems.push(makeLine(section, counts.totalSections, "EA", "MISSING-SECTION", "Missing section item", null));
+  if (counts.linePosts > 0) lineItems.push(makeLine(linePost, counts.linePosts, "EA", "MISSING-LINE-POST", "Missing line post item", null));
+  if (counts.cornerPosts > 0) lineItems.push(makeLine(cornerPost, counts.cornerPosts, "EA", "MISSING-CORNER-POST", "Missing corner post item", null));
+  if (counts.endPosts > 0) lineItems.push(makeLine(endPost, counts.endPosts, "EA", "MISSING-END-POST", "Missing end post item", null));
+  if (cap && counts.totalPosts > 0) lineItems.push(makeLine(cap, counts.totalPosts, "EA", "MISSING-CAP", "Missing cap item", null));
+  if (concrete && concreteQty > 0) lineItems.push(makeLine(concrete, concreteQty, "EA", "CONCRETE", "Concrete", null));
+
+  gates.forEach(g => {
+    lineItems.push({
+      code: g.code,
+      item: g.item,
+      qty: g.qty,
+      unit: "EA",
+      unitPrice: g.unitPrice,
+      total: round2(g.qty * g.unitPrice),
+      source: "Sage Inventory"
+    });
+  });
+
+  const removalNeeded = document.getElementById("removalNeeded").value === "yes";
+  const removalLf = Number(document.getElementById("removalLf").value || counts.totalLf);
+  if (removalNeeded) {
+    lineItems.push({
+      code: "REMOVAL",
+      item: "Existing Fence Removal",
+      qty: round2(removalLf),
+      unit: "LF",
+      unitPrice: 6,
+      total: round2(removalLf * 6),
+      source: "Manual"
+    });
+  }
+
+  addons.forEach(a => lineItems.push(a));
+
+  lineItems.push({
+    code: laborCode,
+    item: "Fence Installation Labor",
+    qty: round2(counts.totalLf),
+    unit: "LF",
+    unitPrice: round2(laborPerLf * multiplier),
+    total: round2(counts.totalLf * laborPerLf * multiplier),
+    source: "Labor"
+  });
+
+  const subtotalBeforeAdjustments = lineItems.reduce((sum, x) => sum + Number(x.total || 0), 0);
+  const markupPct = Number(document.getElementById("markupPct").value || 0);
+  const discount = Number(document.getElementById("discountAmount").value || 0);
+  const taxPct = Number(document.getElementById("taxPct").value || 0);
+  const depositPct = Number(document.getElementById("depositPct").value || 0);
+
+  const markupAmount = subtotalBeforeAdjustments * (markupPct / 100);
+  if (markupAmount > 0) {
+    lineItems.push({
+      code: "MARKUP",
+      item: "Markup",
+      qty: 1,
+      unit: "EA",
+      unitPrice: round2(markupAmount),
+      total: round2(markupAmount),
+      source: "Manual"
+    });
+  }
+
+  if (discount > 0) {
+    lineItems.push({
+      code: "DISCOUNT",
+      item: "Discount",
+      qty: 1,
+      unit: "EA",
+      unitPrice: round2(-discount),
+      total: round2(-discount),
+      source: "Manual"
+    });
+  }
+
+  const taxableSubtotal = lineItems.reduce((sum, x) => sum + Number(x.total || 0), 0);
+  const taxAmount = taxableSubtotal * (taxPct / 100);
+  if (taxAmount > 0) {
+    lineItems.push({
+      code: "TAX",
+      item: "Tax",
+      qty: 1,
+      unit: "EA",
+      unitPrice: round2(taxAmount),
+      total: round2(taxAmount),
+      source: "Tax"
+    });
+  }
+
+  const grandTotal = lineItems.reduce((sum, x) => sum + Number(x.total || 0), 0);
+  const depositDue = grandTotal * (depositPct / 100);
+
+  latestQuote = {
+    quoteNumber: document.getElementById("quoteNumber").value,
+    quoteDate: document.getElementById("quoteDate").value,
+    customerId: document.getElementById("customerId").value,
+    customerName: document.getElementById("customerName").value,
+    customerPhone: document.getElementById("customerPhone").value,
+    customerEmail: document.getElementById("customerEmail").value,
+    jobAddress: document.getElementById("jobAddress").value,
+    estimatorName: document.getElementById("estimatorName").value,
+    notes: document.getElementById("notes").value,
+    system: {
+      material: document.getElementById("systemMaterial").value,
+      style: document.getElementById("systemStyle").value,
+      color: document.getElementById("systemColor").value,
+      height: document.getElementById("systemHeight").value,
+      sectionItem: section,
+      linePostItem: linePost,
+      cornerPostItem: cornerPost,
+      endPostItem: endPost,
+      capItem: cap,
+      concreteItem: concrete
+    },
+    layout: {
+      points,
+      segments: getSegmentFeet(),
+      counts
+    },
+    materialSummary: {
+      sections: counts.totalSections,
+      linePosts: counts.linePosts,
+      cornerPosts: counts.cornerPosts,
+      endPosts: counts.endPosts,
+      totalPosts: counts.totalPosts,
+      concreteBags: concreteQty
+    },
+    pricing: {
+      grandTotal: round2(grandTotal),
+      depositDue: round2(depositDue)
+    },
+    lineItems
+  };
+
+  renderQuote();
+}
+
+function renderQuote() {
+  if (!latestQuote) return;
+
+  document.getElementById("quoteBadges").innerHTML = `
+    <span class="pill dark">${escapeHtml(latestQuote.system.style || "Any Style")}</span>
+    <span class="pill">${escapeHtml(latestQuote.system.material || "Any Material")}</span>
+    <span class="pill">${escapeHtml(latestQuote.system.color || "Any Color")}</span>
+    <span class="pill">${escapeHtml(String(latestQuote.system.height || ""))} ft</span>
+    <span class="pill">${escapeHtml(latestQuote.quoteNumber)}</span>
+  `;
+
+  document.getElementById("kpiLf").textContent = latestQuote.layout.counts.totalLf;
+  document.getElementById("kpiPosts").textContent = latestQuote.materialSummary.totalPosts;
+  document.getElementById("kpiSections").textContent = latestQuote.materialSummary.sections;
+  document.getElementById("kpiConcrete").textContent = latestQuote.materialSummary.concreteBags;
+  document.getElementById("kpiTotal").textContent = "$" + money(latestQuote.pricing.grandTotal);
+  document.getElementById("kpiDeposit").textContent = "$" + money(latestQuote.pricing.depositDue);
+
+  const tbody = document.getElementById("lineItems");
+  tbody.innerHTML = "";
+  latestQuote.lineItems.forEach(row => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><strong>${escapeHtml(row.code)}</strong></td>
+      <td>${escapeHtml(row.item)}<br><span class="small">${escapeHtml(row.source || "")}</span></td>
+      <td>${row.qty} ${escapeHtml(row.unit)}</td>
+      <td>$${money(row.total)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  const m = latestQuote.materialSummary;
+  document.getElementById("materialCounts").innerHTML = `
+    <tr><td>Sections / Panels</td><td>${m.sections}</td></tr>
+    <tr><td>Line Posts</td><td>${m.linePosts}</td></tr>
+    <tr><td>Corner Posts</td><td>${m.cornerPosts}</td></tr>
+    <tr><td>End Posts</td><td>${m.endPosts}</td></tr>
+    <tr><td>Total Posts</td><td>${m.totalPosts}</td></tr>
+    <tr><td>Caps</td><td>${m.totalPosts}</td></tr>
+    <tr><td>Concrete Bags</td><td>${m.concreteBags}</td></tr>
+  `;
+
+  const missing = latestQuote.lineItems.filter(x => String(x.code || "").startsWith("MISSING"));
+  document.getElementById("missingCodes").innerHTML = missing.length
+    ? '<div class="warn"><strong>Missing item codes:</strong><br>' + missing.map(x => escapeHtml(x.item)).join("<br>") + '</div>'
+    : '<div class="good">All core material lines are using Sage item codes.</div>';
+}
+
+function addGate() {
+  const item = selectedItem("newGateItem");
+  if (!item) {
+    alert("Pick a gate item first.");
+    return;
+  }
+
+  const qty = Number(document.getElementById("newGateQty").value || 1);
+  const override = document.getElementById("newGatePriceOverride").value;
+  const price = override === "" ? Number(item.Retail || 0) : Number(override || 0);
+
+  gates.push({
+    code: item.ItemID,
+    item: item.Description,
+    qty,
+    unitPrice: price,
+    source: "Sage Inventory"
+  });
+
+  renderGates();
+}
+
+function removeGate(i) {
+  gates.splice(i, 1);
+  renderGates();
+}
+
+function renderGates() {
+  const holder = document.getElementById("gateList");
+  holder.innerHTML = "";
+  gates.forEach((g, i) => {
+    const div = document.createElement("div");
+    div.className = "gate-row";
+    div.innerHTML = `
+      <label>${g.qty}x</label>
+      <div class="small"><strong>${escapeHtml(g.code)}</strong> - ${escapeHtml(g.item)} - $${money(g.unitPrice)} each</div>
+      <button class="red" onclick="removeGate(${i})">Remove</button>
+    `;
+    holder.appendChild(div);
+  });
+}
+
+function addAddon() {
+  const item = selectedItem("addonInventoryItem");
+  if (!item) {
+    alert("Pick an inventory item first.");
+    return;
+  }
+
+  const qty = Number(document.getElementById("addonQty").value || 1);
+  const unit = document.getElementById("addonUnit").value || "EA";
+  const override = document.getElementById("addonPriceOverride").value;
+  const price = override === "" ? Number(item.Retail || 0) : Number(override || 0);
+
+  addons.push({
+    code: item.ItemID,
+    item: item.Description,
+    qty,
+    unit,
+    unitPrice: price,
+    total: round2(qty * price),
+    source: "Sage Inventory"
+  });
+
+  renderAddons();
+}
+
+function removeAddon(i) {
+  addons.splice(i, 1);
+  renderAddons();
+}
+
+function renderAddons() {
+  const holder = document.getElementById("addonList");
+  holder.innerHTML = "";
+  addons.forEach((a, i) => {
+    const div = document.createElement("div");
+    div.className = "addon-row";
+    div.innerHTML = `
+      <label>${a.qty} ${escapeHtml(a.unit)}</label>
+      <div class="small"><strong>${escapeHtml(a.code)}</strong> - ${escapeHtml(a.item)} - $${money(a.unitPrice)} each</div>
+      <button class="red" onclick="removeAddon(${i})">Remove</button>
+    `;
+    holder.appendChild(div);
+  });
+}
+
+function searchInventory() {
+  const tbody = document.getElementById("inventoryResults");
+  const q = (document.getElementById("inventorySearch").value || "").toLowerCase().trim();
+  const cat = document.getElementById("inventoryCategory").value || "";
+  const limit = Number(document.getElementById("inventoryLimit").value || 40);
+
+  tbody.innerHTML = "";
+
+  const results = inventoryItems.filter(item => {
+    const text = (item.ItemID + " " + item.Description + " " + item.Category + " " + item.Style + " " + item.Material).toLowerCase();
+    if (cat && item.Category !== cat) return false;
+    if (q && !text.includes(q)) return false;
+    return true;
+  }).slice(0, limit);
+
+  results.forEach(item => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><strong>${escapeHtml(item.ItemID)}</strong></td>
+      <td>${escapeHtml(item.Description)}</td>
+      <td>${escapeHtml(item.Category)}</td>
+      <td>$${money(item.Retail)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById("inventoryStatus").textContent = "Showing " + results.length + " of " + inventoryItems.length + " items.";
+}
+
+function exportSageCsv() {
+  if (!latestQuote) calculateQuote();
+
+  const taxable = document.getElementById("taxableFlag").value || "Y";
+
+  const rows = [];
+  rows.push([
+    "QuoteNumber",
+    "QuoteDate",
+    "CustomerID",
+    "CustomerName",
+    "ShipToAddress",
+    "ItemID",
+    "Description",
+    "Quantity",
+    "Unit",
+    "UnitPrice",
+    "LineTotal",
+    "Taxable",
+    "JobName",
+    "Notes"
+  ]);
+
+  latestQuote.lineItems.forEach(item => {
+    rows.push([
+      latestQuote.quoteNumber,
+      latestQuote.quoteDate,
+      latestQuote.customerId,
+      latestQuote.customerName,
+      latestQuote.jobAddress,
+      item.code,
+      item.item,
+      item.qty,
+      item.unit,
+      item.unitPrice,
+      item.total,
+      taxable,
+      latestQuote.jobAddress,
+      latestQuote.notes
+    ]);
+  });
+
+  downloadText(toCsv(rows), latestQuote.quoteNumber + "_sage_quote.csv", "text/csv");
+}
+
+function exportJobJson() {
+  if (!latestQuote) calculateQuote();
+  downloadText(JSON.stringify(latestQuote, null, 2), latestQuote.quoteNumber + "_job.json", "application/json");
+}
+
+function resetAll() {
+  if (!confirm("Reset the entire quote and drawing?")) return;
+
+  points = [];
+  segmentLengths = [];
+  gates = [];
+  addons = [];
+  latestQuote = null;
+
+  document.getElementById("customerName").value = "";
+  document.getElementById("customerPhone").value = "";
+  document.getElementById("customerEmail").value = "";
+  document.getElementById("jobAddress").value = "";
+  document.getElementById("notes").value = "";
+
+  renderGates();
+  renderAddons();
+  rebuildSegments();
+  draw();
+
+  document.getElementById("kpiLf").textContent = "0";
+  document.getElementById("kpiPosts").textContent = "0";
+  document.getElementById("kpiSections").textContent = "0";
+  document.getElementById("kpiConcrete").textContent = "0";
+  document.getElementById("kpiTotal").textContent = "$0.00";
+  document.getElementById("kpiDeposit").textContent = "$0.00";
+  document.getElementById("lineItems").innerHTML = "";
+  document.getElementById("materialCounts").innerHTML = "";
+  document.getElementById("quoteBadges").innerHTML = "";
+  document.getElementById("missingCodes").innerHTML = "";
+}
+
+function toCsv(rows) {
+  return rows.map(row => row.map(cell => {
+    const s = String(cell ?? "");
+    return '"' + s.replaceAll('"', '""') + '"';
+  }).join(",")).join("\r\n");
+}
+
+function downloadText(text, filename, type) {
+  const blob = new Blob([text], {type});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function round2(n) {
+  return Math.round((Number(n) + Number.EPSILON) * 100) / 100;
+}
+
+function money(n) {
+  return Number(n || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+function escapeHtml(s) {
+  return String(s ?? "").replace(/[&<>"']/g, m => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  }[m]));
+}
+</script>
+  <script src="pricing_v5_patch.js"></script>
+  <script src="pricing_v6_shop_rules.js"></script>
+  <script src="pricing_v7_quote_scope.js"></script>
+  <script src="pricing_v8_concrete_scope.js"></script>
+  <script src="pricing_v9_material_default.js"></script>
+  <script src="visual_catalog_v10.js"></script>
+  <script src="pricing_v11_inventory_wholesale.js"></script>
+  <script src="quote_display_v12.js"></script>
+  <script src="layout_gates_v13.js"></script>
+  <script src="quick_quote_v14.js"></script>
+  <script src="payment_element_overrides_v15.js"></script>
+  <script src="drawing_quote_v16.js"></script>
+  <script src="drawing_quote_v17_preview_move_gate.js"></script>
+  <script src="fence_system_preview_v18.js"></script>
+  <script src="quote_print_fix_v19.js"></script>
+  <script src="customer_quote_v20_clear_map_gate_move.js"></script>
+  <script src="drawing_gate_builder_v21.js"></script>
+  <script src="draggable_gate_map_v22.js"></script>
+  <script src="clean_gate_swing_map_v23.js"></script>
+  <script src="unified_customer_print_v24.js"></script>
+  <script src="customer_clear_map_v25.js"></script>
+  <script src="gate_line_drag_map_v26.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

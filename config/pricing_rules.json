@@ -1,0 +1,9 @@
+﻿{
+  "version": "11",
+  "pricing_rule": "Use actual Sage inventory retail prices. Wholesale is 15 percent below retail.",
+  "retail_source": "Inventory Retail / RETAIL 1",
+  "wholesale_formula": "retail * 0.85",
+  "wholesale_discount_percent": 15,
+  "default_mode": "auto",
+  "auto_rule": "One item/section uses retail. Quantity/bulk uses wholesale unless overridden."
+}

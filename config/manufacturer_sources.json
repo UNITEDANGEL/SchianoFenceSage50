@@ -1,0 +1,40 @@
+﻿{
+  "version": "1",
+  "manufacturers": [
+    {
+      "name": "Country Estate Fence",
+      "short_name": "CEF",
+      "website": "https://cefmfg.com/",
+      "materials": [
+        "Vinyl",
+        "Aluminum",
+        "Wood"
+      ],
+      "vinyl_style_keywords": [
+        "Alton",
+        "Brandywine",
+        "Brighton",
+        "Dalton",
+        "Dartmouth",
+        "Dawson",
+        "Denver",
+        "Eagle",
+        "Georgetown",
+        "Hannibal",
+        "Kensington",
+        "Lagoon",
+        "Post and Rail",
+        "Privacy",
+        "Picket Fence"
+      ],
+      "aluminum_style_keywords": [
+        "Devon",
+        "Berwyn",
+        "Haverford",
+        "Strafford",
+        "Edgemont"
+      ],
+      "pricing_rule": "Use Sage inventory prices only. Manufacturer website is for style/product reference."
+    }
+  ]
+}

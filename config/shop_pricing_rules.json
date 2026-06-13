@@ -1,0 +1,23 @@
+﻿{
+  "version": "6",
+  "description": "Schiano Fence shop pricing and PVC post rules.",
+  "section_pricing": {
+    "retail_section_price": 130,
+    "wholesale_section_price": 110,
+    "wholesale_quantity_threshold": 2,
+    "retail_note": "Use retail when customer buys one section or does not qualify for quantity price.",
+    "wholesale_note": "Use wholesale when customer buys quantity/bulk sections."
+  },
+  "pvc_post_rules": {
+    "use_5x5_posts_only": true,
+    "allowed_post_prefixes": [
+      "5LP",
+      "5CP",
+      "5EP",
+      "5BP"
+    ],
+    "four_foot_post_hint": "5LP78 / matching 5x5 7-8 ft style posts",
+    "taller_post_hint": "5LP9 / 5EP9 / matching 5x5 9 ft style posts",
+    "blocked_note": "Do not auto-select other PVC post families unless manually selected."
+  }
+}
