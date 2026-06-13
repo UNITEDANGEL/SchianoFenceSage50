@@ -1,0 +1,19 @@
+﻿{
+  "scripts": {
+    "dev": "next dev -p 8790",
+    "build": "next build",
+    "start": "next start -p 8790"
+  },
+  "dependencies": {
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "lucide-react": "latest"
+  },
+  "devDependencies": {
+    "typescript": "latest",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest"
+  }
+}
