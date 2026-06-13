@@ -1,0 +1,285 @@
+﻿<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Gate Quote Workbench</title>
+<style>
+  body { margin:0; font-family:Arial,sans-serif; background:#f3f4f6; color:#111827; }
+  .wrap { max-width:1250px; margin:0 auto; padding:14px; }
+  .grid { display:grid; grid-template-columns:340px 1fr; gap:14px; align-items:start; }
+  .card { background:#fff; border:1px solid #d1d5db; border-radius:12px; padding:12px; box-shadow:0 1px 5px rgba(0,0,0,.08); }
+  h1 { margin:0 0 8px; }
+  h3 { margin:8px 0; }
+  label { display:block; font-size:12px; font-weight:800; margin-top:8px; }
+  input, select, textarea { width:100%; box-sizing:border-box; padding:8px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; }
+  button { border:0; border-radius:8px; padding:10px 12px; font-weight:900; cursor:pointer; margin-top:8px; }
+  .blue { background:#2563eb; color:#fff; }
+  .green { background:#047857; color:#fff; }
+  .gray { background:#4b5563; color:#fff; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  #mapBox { background:white; border:1px solid #d1d5db; border-radius:12px; padding:8px; overflow:auto; }
+  .small { font-size:12px; color:#4b5563; }
+  .photo { max-width:100%; max-height:210px; object-fit:contain; border:1px solid #d1d5db; border-radius:10px; background:#fff; }
+  table { width:100%; border-collapse:collapse; margin-top:8px; }
+  th,td { border:1px solid #d1d5db; padding:6px; font-size:12px; }
+  th { background:#f9fafb; text-align:left; }
+  .right { text-align:right; }
+  @media print {
+    body { background:#fff; }
+    .no-print { display:none !important; }
+    .wrap { max-width:none; padding:0; }
+    .card { box-shadow:none; }
+    @page { size:letter portrait; margin:.25in; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="no-print">
+    <h1>Gate Quote Workbench</h1>
+    <p class="small">This page is standalone. The gate should always show as the orange line. Drag the orange line to move it.</p>
+  </div>
+  <div class="grid">
+    <div class="card no-print">
+      <h3>Gate Inputs</h3>
+      <label>Customer Name</label>
+      <input id="customerName" placeholder="Customer">
+      <label>Job Address</label>
+      <textarea id="jobAddress" rows="2"></textarea>
+      <div class="row">
+        <div>
+          <label>Fence Run Length Ft</label>
+          <input id="runLength" type="number" step="0.5" value="48">
+        </div>
+        <div>
+          <label>Section Width Ft</label>
+          <input id="sectionWidth" type="number" step="0.5" value="8">
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Gate Width Ft</label>
+          <input id="gateWidth" type="number" step="0.5" value="4">
+        </div>
+        <div>
+          <label>Gate Start Ft</label>
+          <input id="gateStart" type="number" step="0.5" value="2">
+        </div>
+      </div>
+      <label>Swing Direction</label>
+      <select id="swing" onchange="renderAll()">
+        <option value="outswing_left">Outswing Left</option>
+        <option value="outswing_right">Outswing Right</option>
+        <option value="inswing_left">Inswing Left</option>
+        <option value="inswing_right">Inswing Right</option>
+      </select>
+      <label>Customer Item Totals</label>
+      <select id="totalsMode" onchange="renderAll()">
+        <option value="grand_only" selected>Hide item totals - grand total only</option>
+        <option value="mask">Mask item totals - ***last digits</option>
+        <option value="show">Show item totals</option>
+      </select>
+      <div class="row">
+        <div>
+          <label>Fence / Materials Total</label>
+          <input id="materialsTotal" type="number" step="0.01" value="0">
+        </div>
+        <div>
+          <label>Gate Price</label>
+          <input id="gatePrice" type="number" step="0.01" value="0">
+        </div>
+      </div>
+      <button class="blue" onclick="renderAll()">Update Map</button>
+      <button class="green" onclick="window.print()">Print Customer Quote</button>
+      <button class="gray" onclick="window.location.href='index.html'">Back to Main App</button>
+    </div>
+    <div>
+      <div class="card">
+        <h3>Customer Gate Map</h3>
+        <p class="small no-print">Grab the orange gate line and drag left/right. Red line shows exactly where the gate swings open.</p>
+        <div id="mapBox"></div>
+      </div>
+      <div class="card" style="margin-top:12px;">
+        <h3>Gate Product Photo</h3>
+        <img id="gatePhoto" class="photo" src="../catalog_images/cef_lakeland_single_gate.jpg" onerror="this.style.display='none';document.getElementById('photoMsg').style.display='block';">
+        <div id="photoMsg" class="small" style="display:none;">Gate photo file not found yet. The map and print still work.</div>
+      </div>
+      <div class="card" style="margin-top:12px;">
+        <h3>Customer Summary</h3>
+        <div id="summaryBox"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+var dragging = false;
+var activePointerId = null;
+function n(id, fallback) {
+  var el = document.getElementById(id);
+  var v = el ? Number(el.value) : fallback;
+  return isNaN(v) ? fallback : v;
+}
+function s(id) {
+  var el = document.getElementById(id);
+  return el ? el.value : "";
+}
+function setVal(id, value) {
+  var el = document.getElementById(id);
+  if (el) el.value = value;
+}
+function money(v) {
+  return Number(v || 0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function swingLabel(v) {
+  var m = {
+    outswing_left:"Outswing Left",
+    outswing_right:"Outswing Right",
+    inswing_left:"Inswing Left",
+    inswing_right:"Inswing Right"
+  };
+  return m[v] || "Outswing Left";
+}
+function clampGate() {
+  var len = n("runLength",48);
+  var width = n("gateWidth",4);
+  var start = n("gateStart",2);
+  if (width > len) width = len;
+  start = Math.max(0, Math.min(len - width, start));
+  setVal("gateWidth", Math.round(width * 100) / 100);
+  setVal("gateStart", Math.round(start * 100) / 100);
+}
+function xFromFt(ft) {
+  var len = n("runLength",48);
+  return 80 + (ft / len) * (920 - 80);
+}
+function ftFromX(x) {
+  var len = n("runLength",48);
+  var t = Math.max(0, Math.min(1, (x - 80) / (920 - 80)));
+  return t * len;
+}
+function splitLabel(length) {
+  var sw = n("sectionWidth",8);
+  var full = Math.floor(length / sw);
+  var rem = Math.round((length - full * sw) * 100) / 100;
+  if (full === 0 && rem > 0) return rem + "' cut";
+  if (rem > 0) return full + " x " + sw + "' + " + rem + "' cut";
+  return full + " x " + sw + "'";
+}
+function lineTotalDisplay(v) {
+  var mode = s("totalsMode");
+  if (mode === "show") return "$" + money(v);
+  if (mode === "mask") {
+    var clean = money(v).replace(/[^0-9]/g,"");
+    return "***" + clean.slice(-2);
+  }
+  return "";
+}
+function buildSvg() {
+  clampGate();
+  var len = n("runLength",48);
+  var start = n("gateStart",2);
+  var width = n("gateWidth",4);
+  var end = start + width;
+  var swing = s("swing");
+  var y = 170;
+  var gx1 = xFromFt(start);
+  var gx2 = xFromFt(end);
+  var gmid = (gx1 + gx2) / 2;
+  var isIn = swing.indexOf("in") === 0;
+  var isLeft = swing.indexOf("left") >= 0;
+  var side = isIn ? 1 : -1;
+  var hingeX = isLeft ? gx1 : gx2;
+  var gatePx = Math.abs(gx2 - gx1);
+  var openY = y + side * gatePx;
+  var arcCX = hingeX + (isLeft ? gatePx * .35 : -gatePx * .35);
+  var arcCY = y + side * gatePx * .75;
+  var svg = "";
+  svg += "<svg id='gateSvg' width='1000' height='370' viewBox='0 0 1000 370' xmlns='http://www.w3.org/2000/svg' style='touch-action:none; user-select:none;'>";
+  svg += "<defs><marker id='arrow' markerWidth='9' markerHeight='9' refX='7' refY='3' orient='auto'><path d='M0,0 L0,6 L8,3 z' fill='#dc2626'/></marker></defs>";
+  svg += "<rect width='100%' height='100%' fill='#fff'/>";
+  svg += "<text x='500' y='28' text-anchor='middle' font-family='Arial' font-size='20' font-weight='900'>Customer Gate Layout</text>";
+  if (start > 0) {
+    svg += "<line x1='80' y1='" + y + "' x2='" + gx1 + "' y2='" + y + "' stroke='#111827' stroke-width='8' stroke-linecap='round'/>";
+    svg += "<text x='" + ((80 + gx1)/2) + "' y='" + (y - 24) + "' text-anchor='middle' font-family='Arial' font-size='15' font-weight='900' fill='#1e3a8a'>" + splitLabel(start) + "</text>";
+  }
+  if (end < len) {
+    svg += "<line x1='" + gx2 + "' y1='" + y + "' x2='920' y2='" + y + "' stroke='#111827' stroke-width='8' stroke-linecap='round'/>";
+    svg += "<text x='" + ((gx2 + 920)/2) + "' y='" + (y - 24) + "' text-anchor='middle' font-family='Arial' font-size='15' font-weight='900' fill='#1e3a8a'>" + splitLabel(len - end) + "</text>";
+  }
+  svg += "<path d='M " + hingeX + " " + y + " Q " + arcCX + " " + arcCY + " " + hingeX + " " + openY + "' fill='none' stroke='#dc2626' stroke-width='4' marker-end='url(#arrow)'/>";
+  svg += "<line x1='" + hingeX + "' y1='" + y + "' x2='" + hingeX + "' y2='" + openY + "' stroke='#dc2626' stroke-width='4' stroke-linecap='round'/>";
+  svg += "<g id='dragGate' style='cursor:grab;'>";
+  svg += "<line x1='" + gx1 + "' y1='" + y + "' x2='" + gx2 + "' y2='" + y + "' stroke='#f97316' stroke-width='16' stroke-linecap='round'/>";
+  svg += "<line x1='" + gx1 + "' y1='" + y + "' x2='" + gx2 + "' y2='" + y + "' stroke='#7c2d12' stroke-width='2' stroke-linecap='round'/>";
+  svg += "<circle cx='" + gx1 + "' cy='" + y + "' r='7' fill='#7c2d12'/>";
+  svg += "<circle cx='" + gx2 + "' cy='" + y + "' r='7' fill='#7c2d12'/>";
+  svg += "<text x='" + gmid + "' y='" + (y + 38) + "' text-anchor='middle' font-family='Arial' font-size='16' font-weight='900' fill='#7c2d12'>" + width + "' GATE</text>";
+  svg += "<text x='" + gmid + "' y='" + (y + 60) + "' text-anchor='middle' font-family='Arial' font-size='13' font-weight='900' fill='#dc2626'>" + swingLabel(swing) + "</text>";
+  svg += "</g>";
+  svg += "<text x='80' y='330' font-family='Arial' font-size='12' fill='#4b5563'>Orange = gate opening. Red = swing direction. Drag the orange line.</text>";
+  svg += "</svg>";
+  return svg;
+}
+function attachDrag() {
+  var svg = document.getElementById("gateSvg");
+  var gate = document.getElementById("dragGate");
+  if (!svg || !gate) return;
+  gate.addEventListener("pointerdown", function(e) {
+    dragging = true;
+    activePointerId = e.pointerId;
+    gate.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  gate.addEventListener("pointermove", function(e) {
+    if (!dragging || e.pointerId !== activePointerId) return;
+    e.preventDefault();
+    var pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    var p = pt.matrixTransform(svg.getScreenCTM().inverse());
+    var len = n("runLength",48);
+    var width = n("gateWidth",4);
+    var centerFt = ftFromX(p.x);
+    var startFt = centerFt - width / 2;
+    startFt = Math.max(0, Math.min(len - width, startFt));
+    setVal("gateStart", Math.round(startFt * 100) / 100);
+    renderAll();
+  });
+  gate.addEventListener("pointerup", function(e) {
+    dragging = false;
+    activePointerId = null;
+  });
+  gate.addEventListener("pointercancel", function(e) {
+    dragging = false;
+    activePointerId = null;
+  });
+}
+function renderSummary() {
+  var material = n("materialsTotal",0);
+  var gate = n("gatePrice",0);
+  var total = material + gate;
+  var showLine = s("totalsMode") !== "grand_only";
+  var html = "";
+  html += "<table><thead><tr><th>Description</th><th class='right'>Qty</th>";
+  if (showLine) html += "<th class='right'>Line Total</th>";
+  html += "</tr></thead><tbody>";
+  html += "<tr><td>Fence sections / materials</td><td class='right'>" + splitLabel(n("runLength",48) - n("gateWidth",4)) + "</td>";
+  if (showLine) html += "<td class='right'>" + lineTotalDisplay(material) + "</td>";
+  html += "</tr>";
+  html += "<tr><td>" + swingLabel(s("swing")) + " gate</td><td class='right'>" + n("gateWidth",4) + "' opening</td>";
+  if (showLine) html += "<td class='right'>" + lineTotalDisplay(gate) + "</td>";
+  html += "</tr>";
+  html += "</tbody></table>";
+  html += "<h2 class='right'>Grand Total: $" + money(total) + "</h2>";
+  document.getElementById("summaryBox").innerHTML = html;
+}
+function renderAll() {
+  clampGate();
+  document.getElementById("mapBox").innerHTML = buildSvg();
+  attachDrag();
+  renderSummary();
+}
+document.addEventListener("DOMContentLoaded", renderAll);
+</script>
+</body>
+</html>

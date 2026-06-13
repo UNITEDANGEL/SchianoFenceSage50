@@ -1,0 +1,641 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sage 50 Fencing Estimator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f3f4f6;
+  color: #111827;
+}
+header {
+  background: #111827;
+  color: white;
+  padding: 14px 20px;
+}
+header h1 {
+  margin: 0;
+  font-size: 22px;
+}
+main {
+  display: grid;
+  grid-template-columns: 360px 1fr 420px;
+  gap: 14px;
+  padding: 14px;
+}
+.panel {
+  background: white;
+  border-radius: 10px;
+  padding: 14px;
+  box-shadow: 0 1px 5px rgba(0,0,0,.12);
+}
+label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+  font-size: 13px;
+}
+input, select, textarea, button {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px;
+  margin-top: 4px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+}
+button {
+  background: #1f2937;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+button:hover {
+  background: #374151;
+}
+button.secondary {
+  background: #64748b;
+}
+button.danger {
+  background: #991b1b;
+}
+canvas {
+  width: 100%;
+  height: 600px;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  cursor: crosshair;
+}
+.small {
+  font-size: 12px;
+  color: #4b5563;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 13px;
+}
+th, td {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 6px;
+  text-align: left;
+}
+.total {
+  font-size: 20px;
+  font-weight: bold;
+}
+.segment-row {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: 8px;
+  align-items: end;
+}
+hr {
+  border: 0;
+  border-top: 1px solid #e5e7eb;
+  margin: 14px 0;
+}
+.badge {
+  display: inline-block;
+  padding: 3px 7px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  font-size: 12px;
+  margin-right: 5px;
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Sage 50 Fencing Estimator</h1>
+  <div class="small" style="color:#d1d5db;">Draw any fence shape, enter dimensions, calculate quote, export Sage-ready CSV.</div>
+</header>
+
+<main>
+  <section class="panel">
+    <h2>Customer / Job</h2>
+
+    <label>Customer Name</label>
+    <input id="customerName" value="Sample Customer">
+
+    <label>Job Address</label>
+    <input id="jobAddress" value="">
+
+    <label>Quote Number</label>
+    <input id="quoteNumber">
+
+    <label>Fence Type</label>
+    <select id="fenceType"></select>
+
+    <label>Fence Height</label>
+    <select id="fenceHeight">
+      <option value="4">4 ft</option>
+      <option value="5">5 ft</option>
+      <option value="6" selected>6 ft</option>
+      <option value="8">8 ft</option>
+    </select>
+
+    <label>Layout Type</label>
+    <select id="layoutClosed">
+      <option value="open" selected>Open shape</option>
+      <option value="closed">Closed shape / enclosure</option>
+    </select>
+
+    <label>Gates</label>
+    <input id="gateCount" type="number" min="0" value="0">
+
+    <label>Average Gate Width</label>
+    <input id="gateWidth" type="number" min="0" step="0.5" value="4">
+
+    <label>Removal Needed?</label>
+    <select id="removalNeeded">
+      <option value="no" selected>No</option>
+      <option value="yes">Yes</option>
+    </select>
+
+    <label>Terrain Difficulty</label>
+    <select id="terrain">
+      <option value="normal" selected>Normal</option>
+      <option value="medium">Medium</option>
+      <option value="hard">Hard</option>
+    </select>
+
+    <label>Notes</label>
+    <textarea id="notes" rows="4"></textarea>
+
+    <hr>
+
+    <button onclick="calculateQuote()">Calculate Quote</button>
+    <button class="secondary" onclick="exportSageCsv()">Export Sage CSV</button>
+    <button class="secondary" onclick="exportJobJson()">Export Job JSON</button>
+    <button class="danger" onclick="resetDrawing()">Reset Drawing</button>
+  </section>
+
+  <section class="panel">
+    <h2>Fence Drawing</h2>
+    <p class="small">
+      Click on the canvas to add points. Each line between points is a fence section.
+      After drawing, enter the real footage for each segment below.
+    </p>
+    <canvas id="canvas" width="900" height="600"></canvas>
+
+    <h3>Segments</h3>
+    <div id="segments"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Quote Results</h2>
+    <div id="summary">
+      <p class="small">No quote calculated yet.</p>
+    </div>
+
+    <h3>Material / Labor Lines</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Qty</th>
+          <th>Unit</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody id="lineItems"></tbody>
+    </table>
+  </section>
+</main>
+
+<script>
+const rules = {
+  "Wood Privacy": {
+    sageCode: "FENCE-WOOD-PRIVACY",
+    postSpacing: 8,
+    panelWidth: 8,
+    railsPerSection: 3,
+    concreteBagsPerPost: 1.5,
+    materialPerLf: 32,
+    laborPerLf: 24,
+    gatePrice: 350,
+    removalPerLf: 6
+  },
+  "Vinyl Privacy": {
+    sageCode: "FENCE-VINYL-PRIVACY",
+    postSpacing: 8,
+    panelWidth: 8,
+    railsPerSection: 2,
+    concreteBagsPerPost: 1.5,
+    materialPerLf: 46,
+    laborPerLf: 26,
+    gatePrice: 525,
+    removalPerLf: 6
+  },
+  "Chain Link": {
+    sageCode: "FENCE-CHAIN-LINK",
+    postSpacing: 10,
+    panelWidth: 10,
+    railsPerSection: 1,
+    concreteBagsPerPost: 1.25,
+    materialPerLf: 19,
+    laborPerLf: 16,
+    gatePrice: 275,
+    removalPerLf: 5
+  },
+  "Aluminum": {
+    sageCode: "FENCE-ALUMINUM",
+    postSpacing: 6,
+    panelWidth: 6,
+    railsPerSection: 2,
+    concreteBagsPerPost: 1.25,
+    materialPerLf: 42,
+    laborPerLf: 24,
+    gatePrice: 475,
+    removalPerLf: 5
+  }
+};
+
+let points = [];
+let segmentLengths = [];
+let latestQuote = null;
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+function init() {
+  const fenceType = document.getElementById("fenceType");
+  Object.keys(rules).forEach(name => {
+    const opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = name;
+    fenceType.appendChild(opt);
+  });
+  document.getElementById("quoteNumber").value = "Q-" + new Date().toISOString().slice(0,10).replaceAll("-","") + "-001";
+  draw();
+}
+init();
+
+canvas.addEventListener("click", function(e) {
+  const rect = canvas.getBoundingClientRect();
+  const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+  points.push({x, y});
+  rebuildSegments();
+  draw();
+});
+
+function resetDrawing() {
+  points = [];
+  segmentLengths = [];
+  latestQuote = null;
+  rebuildSegments();
+  draw();
+  document.getElementById("summary").innerHTML = '<p class="small">No quote calculated yet.</p>';
+  document.getElementById("lineItems").innerHTML = "";
+}
+
+function rebuildSegments() {
+  const closed = document.getElementById("layoutClosed").value === "closed";
+  let count = Math.max(0, points.length - 1);
+  if (closed && points.length > 2) count += 1;
+
+  while (segmentLengths.length < count) segmentLengths.push("");
+  while (segmentLengths.length > count) segmentLengths.pop();
+
+  const holder = document.getElementById("segments");
+  holder.innerHTML = "";
+
+  for (let i = 0; i < count; i++) {
+    const div = document.createElement("div");
+    div.className = "segment-row";
+    div.innerHTML = `
+      <label>Seg ${i + 1}</label>
+      <input type="number" min="0" step="0.01" value="${segmentLengths[i] || ""}" placeholder="Length in feet" onchange="segmentLengths[${i}] = this.value">
+    `;
+    holder.appendChild(div);
+  }
+}
+
+document.getElementById("layoutClosed").addEventListener("change", function() {
+  rebuildSegments();
+  draw();
+});
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.strokeStyle = "#e5e7eb";
+  ctx.lineWidth = 1;
+  for (let x = 0; x < canvas.width; x += 30) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, canvas.height);
+    ctx.stroke();
+  }
+  for (let y = 0; y < canvas.height; y += 30) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(canvas.width, y);
+    ctx.stroke();
+  }
+
+  if (points.length > 0) {
+    ctx.strokeStyle = "#111827";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(points[i].x, points[i].y);
+    }
+    if (document.getElementById("layoutClosed").value === "closed" && points.length > 2) {
+      ctx.closePath();
+    }
+    ctx.stroke();
+
+    points.forEach((p, i) => {
+      ctx.fillStyle = "#2563eb";
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "white";
+      ctx.font = "12px Arial";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(String(i + 1), p.x, p.y);
+    });
+  }
+}
+
+function getSegmentFeet() {
+  return segmentLengths.map(x => Number(x || 0)).filter(x => x > 0);
+}
+
+function calculateQuote() {
+  const fenceName = document.getElementById("fenceType").value;
+  const r = rules[fenceName];
+  const feet = getSegmentFeet();
+  const totalLf = feet.reduce((a,b) => a + b, 0);
+  const closed = document.getElementById("layoutClosed").value === "closed";
+  const gateCount = Number(document.getElementById("gateCount").value || 0);
+  const gateWidth = Number(document.getElementById("gateWidth").value || 0);
+  const removal = document.getElementById("removalNeeded").value === "yes";
+  const terrain = document.getElementById("terrain").value;
+
+  const segmentCount = feet.length;
+  const cornerPosts = closed ? Math.max(points.length, 0) : Math.max(points.length - 2, 0);
+  const endPosts = closed ? 0 : (points.length >= 2 ? 2 : 0);
+  const gatePosts = gateCount * 2;
+
+  let linePosts = 0;
+  feet.forEach(length => {
+    const postsOnSegment = Math.max(0, Math.ceil(length / r.postSpacing) - 1);
+    linePosts += postsOnSegment;
+  });
+
+  const totalPosts = cornerPosts + endPosts + gatePosts + linePosts;
+  const sections = Math.ceil(totalLf / r.panelWidth);
+  const rails = sections * r.railsPerSection;
+  const concreteBags = Math.ceil(totalPosts * r.concreteBagsPerPost);
+  const caps = totalPosts;
+
+  let terrainMultiplier = 1;
+  if (terrain === "medium") terrainMultiplier = 1.12;
+  if (terrain === "hard") terrainMultiplier = 1.25;
+
+  const materialTotal = totalLf * r.materialPerLf;
+  const laborTotal = totalLf * r.laborPerLf * terrainMultiplier;
+  const gateTotal = gateCount * r.gatePrice;
+  const removalTotal = removal ? totalLf * r.removalPerLf : 0;
+  const subtotal = materialTotal + laborTotal + gateTotal + removalTotal;
+
+  const lineItems = [
+    {
+      code: r.sageCode,
+      item: fenceName + " Fence Package",
+      qty: round2(totalLf),
+      unit: "LF",
+      unitPrice: r.materialPerLf,
+      total: round2(materialTotal)
+    },
+    {
+      code: "LABOR-FENCE-INSTALL",
+      item: "Fence Installation Labor",
+      qty: round2(totalLf),
+      unit: "LF",
+      unitPrice: round2(r.laborPerLf * terrainMultiplier),
+      total: round2(laborTotal)
+    },
+    {
+      code: "POST-LINE",
+      item: "Line Posts",
+      qty: linePosts,
+      unit: "EA",
+      unitPrice: 0,
+      total: 0
+    },
+    {
+      code: "POST-CORNER",
+      item: "Corner Posts",
+      qty: cornerPosts,
+      unit: "EA",
+      unitPrice: 0,
+      total: 0
+    },
+    {
+      code: "POST-END",
+      item: "End Posts",
+      qty: endPosts,
+      unit: "EA",
+      unitPrice: 0,
+      total: 0
+    },
+    {
+      code: "CONCRETE-BAG",
+      item: "Concrete Bags",
+      qty: concreteBags,
+      unit: "EA",
+      unitPrice: 0,
+      total: 0
+    },
+    {
+      code: "CAPS",
+      item: "Post Caps",
+      qty: caps,
+      unit: "EA",
+      unitPrice: 0,
+      total: 0
+    },
+    {
+      code: "RAILS",
+      item: "Rails / Supports",
+      qty: rails,
+      unit: "EA",
+      unitPrice: 0,
+      total: 0
+    }
+  ];
+
+  if (gateCount > 0) {
+    lineItems.push({
+      code: "GATE",
+      item: "Gate " + gateWidth + " ft",
+      qty: gateCount,
+      unit: "EA",
+      unitPrice: r.gatePrice,
+      total: round2(gateTotal)
+    });
+  }
+
+  if (removal) {
+    lineItems.push({
+      code: "REMOVAL",
+      item: "Existing Fence Removal",
+      qty: round2(totalLf),
+      unit: "LF",
+      unitPrice: r.removalPerLf,
+      total: round2(removalTotal)
+    });
+  }
+
+  latestQuote = {
+    quoteNumber: document.getElementById("quoteNumber").value,
+    customerName: document.getElementById("customerName").value,
+    jobAddress: document.getElementById("jobAddress").value,
+    fenceType: fenceName,
+    fenceHeight: document.getElementById("fenceHeight").value,
+    layout: closed ? "closed" : "open",
+    segments: feet,
+    totalLf: round2(totalLf),
+    points,
+    materialSummary: {
+      segmentCount,
+      sections,
+      linePosts,
+      cornerPosts,
+      endPosts,
+      gatePosts,
+      totalPosts,
+      rails,
+      concreteBags,
+      caps
+    },
+    subtotal: round2(subtotal),
+    notes: document.getElementById("notes").value,
+    lineItems
+  };
+
+  renderQuote();
+}
+
+function renderQuote() {
+  if (!latestQuote) return;
+
+  document.getElementById("summary").innerHTML = `
+    <p><span class="badge">${latestQuote.layout}</span><span class="badge">${latestQuote.fenceType}</span><span class="badge">${latestQuote.fenceHeight} ft</span></p>
+    <p><strong>Customer:</strong> ${escapeHtml(latestQuote.customerName)}</p>
+    <p><strong>Quote:</strong> ${escapeHtml(latestQuote.quoteNumber)}</p>
+    <p><strong>Total Linear Feet:</strong> ${latestQuote.totalLf}</p>
+    <p><strong>Total Posts:</strong> ${latestQuote.materialSummary.totalPosts}</p>
+    <p><strong>Sections / Panels:</strong> ${latestQuote.materialSummary.sections}</p>
+    <p><strong>Concrete Bags:</strong> ${latestQuote.materialSummary.concreteBags}</p>
+    <p class="total">Estimated Total: $${money(latestQuote.subtotal)}</p>
+  `;
+
+  const tbody = document.getElementById("lineItems");
+  tbody.innerHTML = "";
+  latestQuote.lineItems.forEach(row => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${escapeHtml(row.item)}</td>
+      <td>${row.qty}</td>
+      <td>${row.unit}</td>
+      <td>$${money(row.total)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function exportSageCsv() {
+  if (!latestQuote) calculateQuote();
+  if (!latestQuote) return;
+
+  const rows = [];
+  rows.push([
+    "QuoteNumber",
+    "CustomerName",
+    "JobAddress",
+    "ItemCode",
+    "Description",
+    "Quantity",
+    "Unit",
+    "UnitPrice",
+    "LineTotal",
+    "Notes"
+  ]);
+
+  latestQuote.lineItems.forEach(item => {
+    rows.push([
+      latestQuote.quoteNumber,
+      latestQuote.customerName,
+      latestQuote.jobAddress,
+      item.code,
+      item.item,
+      item.qty,
+      item.unit,
+      item.unitPrice,
+      item.total,
+      latestQuote.notes
+    ]);
+  });
+
+  downloadText(csv(rows), latestQuote.quoteNumber + "_sage_quote.csv", "text/csv");
+}
+
+function exportJobJson() {
+  if (!latestQuote) calculateQuote();
+  if (!latestQuote) return;
+  downloadText(JSON.stringify(latestQuote, null, 2), latestQuote.quoteNumber + "_job.json", "application/json");
+}
+
+function csv(rows) {
+  return rows.map(row => row.map(cell => {
+    const s = String(cell ?? "");
+    return '"' + s.replaceAll('"', '""') + '"';
+  }).join(",")).join("\r\n");
+}
+
+function downloadText(text, filename, type) {
+  const blob = new Blob([text], {type});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function round2(n) {
+  return Math.round((Number(n) + Number.EPSILON) * 100) / 100;
+}
+
+function money(n) {
+  return Number(n || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+function escapeHtml(s) {
+  return String(s ?? "").replace(/[&<>"']/g, m => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  }[m]));
+}
+</script>
+</body>
+</html>

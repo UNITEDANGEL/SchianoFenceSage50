@@ -1,0 +1,560 @@
+﻿<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Fence Quote Single Screen</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:Arial, sans-serif; background:#eef2f7; color:#111827; }
+  .app { max-width:1440px; margin:0 auto; padding:14px; }
+  .topbar { background:#111827; color:white; padding:12px 16px; border-radius:14px; display:flex; justify-content:space-between; align-items:center; gap:12px; }
+  .topbar h1 { font-size:22px; margin:0; }
+  .topbar .note { font-size:12px; color:#d1d5db; }
+  .grid { display:grid; grid-template-columns:360px 1fr 370px; gap:12px; margin-top:12px; align-items:start; }
+  .card { background:white; border:1px solid #d1d5db; border-radius:14px; padding:12px; box-shadow:0 1px 5px rgba(0,0,0,.08); }
+  h2 { font-size:17px; margin:0 0 8px; }
+  h3 { font-size:14px; margin:12px 0 6px; }
+  label { display:block; font-size:12px; font-weight:800; margin-top:8px; color:#374151; }
+  input, select, textarea { width:100%; border:1px solid #cbd5e1; border-radius:8px; padding:8px; font-size:14px; background:white; }
+  textarea { resize:vertical; min-height:54px; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .row3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+  button { border:0; border-radius:9px; padding:10px 12px; font-weight:900; cursor:pointer; }
+  .blue { background:#2563eb; color:white; }
+  .green { background:#047857; color:white; }
+  .gray { background:#4b5563; color:white; }
+  .orange { background:#f97316; color:white; }
+  .actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .small { color:#6b7280; font-size:12px; line-height:1.35; }
+  #mapWrap { border:1px solid #d1d5db; border-radius:14px; background:white; padding:8px; overflow:auto; }
+  #mapWrap svg { width:100%; min-width:760px; height:auto; display:block; }
+  .product-photo { width:100%; height:230px; object-fit:contain; border:1px solid #d1d5db; border-radius:12px; background:#fafafa; }
+  .sketch { border:1px solid #d1d5db; border-radius:12px; background:#fff; }
+  table { width:100%; border-collapse:collapse; margin-top:8px; }
+  th,td { border:1px solid #d1d5db; padding:6px; font-size:12px; vertical-align:top; }
+  th { background:#f3f4f6; text-align:left; font-weight:900; }
+  .right { text-align:right; }
+  .grand { text-align:right; font-size:24px; font-weight:900; margin-top:8px; color:#111827; }
+  .pill { display:inline-block; padding:3px 7px; border-radius:999px; background:#eff6ff; color:#1e3a8a; font-size:11px; font-weight:900; }
+  .customer-page { background:white; border:1px solid #d1d5db; border-radius:14px; padding:12px; }
+  .hidden { display:none !important; }
+  @media print {
+    body { background:white; }
+    .no-print { display:none !important; }
+    .app { max-width:none; padding:0; }
+    .print-only-area { display:block !important; }
+    .customer-page { border:0; border-radius:0; padding:0; }
+    @page { size: letter portrait; margin:.25in; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar no-print">
+    <div>
+      <h1>Fence Quote Single Screen</h1>
+      <div class="note">One page. One checkout. Draggable gate. Swing direction. Product picture. Customer print controls.</div>
+    </div>
+    <button class="green" onclick="printCustomer()">Print Customer Quote</button>
+  </div>
+  <div class="grid no-print">
+    <div class="card">
+      <h2>1. Customer / Quote</h2>
+      <label>Customer Name</label>
+      <input id="customerName" placeholder="Customer name" oninput="renderAll()">
+      <label>Job Address</label>
+      <textarea id="jobAddress" placeholder="Job address" oninput="renderAll()"></textarea>
+      <div class="row">
+        <div>
+          <label>Quote Type</label>
+          <select id="quoteType" onchange="renderAll()">
+            <option value="materials_only" selected>Materials Only</option>
+            <option value="materials_labor">Materials + Labor</option>
+            <option value="labor_only">Labor Only</option>
+          </select>
+        </div>
+        <div>
+          <label>Pricing</label>
+          <select id="pricingMode" onchange="renderAll()">
+            <option value="auto" selected>Auto</option>
+            <option value="retail">Retail</option>
+            <option value="wholesale">Wholesale</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Payment</label>
+          <select id="paymentMethod" onchange="renderAll()">
+            <option value="cash" selected>Cash / Check</option>
+            <option value="credit">Credit Card + 3.5%</option>
+          </select>
+        </div>
+        <div>
+          <label>Customer Prices</label>
+          <select id="customerPrices" onchange="renderAll()">
+            <option value="grand_only" selected>Grand total only</option>
+            <option value="hide_unit_show_line">Hide unit, show line total</option>
+            <option value="mask_line">Mask line total</option>
+            <option value="show_all">Show unit + line total</option>
+          </select>
+        </div>
+      </div>
+      <h2 style="margin-top:14px;">2. Fence / Product</h2>
+      <div class="row">
+        <div>
+          <label>Fence Style</label>
+          <select id="style" onchange="styleChanged()">
+            <option value="Lakeland" selected>Lakeland</option>
+            <option value="Malibu">Malibu</option>
+            <option value="Custom">Custom / Sketch Only</option>
+          </select>
+        </div>
+        <div>
+          <label>Color</label>
+          <select id="color" onchange="renderAll()">
+            <option value="White" selected>White</option>
+            <option value="Adobe">Adobe</option>
+            <option value="Almond">Almond</option>
+            <option value="Custom">Custom</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Fence Run Length Ft</label>
+          <input id="runLength" type="number" step="0.5" value="48" oninput="renderAll()">
+        </div>
+        <div>
+          <label>Section Width Ft</label>
+          <input id="sectionWidth" type="number" step="0.5" value="8" oninput="renderAll()">
+        </div>
+      </div>
+      <h2 style="margin-top:14px;">3. Gate</h2>
+      <div class="row">
+        <div>
+          <label>Gate Type</label>
+          <select id="gateType" onchange="gateTypeChanged()">
+            <option value="single" selected>Single Walk Gate</option>
+            <option value="double">Double Driveway Gate</option>
+          </select>
+        </div>
+        <div>
+          <label>Gate Width Ft</label>
+          <input id="gateWidth" type="number" step="0.5" value="4" oninput="renderAll()">
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Gate Start Ft</label>
+          <input id="gateStart" type="number" step="0.5" value="2" oninput="renderAll()">
+        </div>
+        <div>
+          <label>Swing Direction</label>
+          <select id="swing" onchange="renderAll()">
+            <option value="outswing_left" selected>Outswing Left</option>
+            <option value="outswing_right">Outswing Right</option>
+            <option value="inswing_left">Inswing Left</option>
+            <option value="inswing_right">Inswing Right</option>
+          </select>
+        </div>
+      </div>
+      <h2 style="margin-top:14px;">4. Pricing Inputs</h2>
+      <div class="row">
+        <div>
+          <label>Fence Materials Retail</label>
+          <input id="materialsRetail" type="number" step="0.01" value="0" oninput="renderAll()">
+        </div>
+        <div>
+          <label>Gate Retail</label>
+          <input id="gateRetail" type="number" step="0.01" value="0" oninput="renderAll()">
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Labor</label>
+          <input id="laborRetail" type="number" step="0.01" value="0" oninput="renderAll()">
+        </div>
+        <div>
+          <label>Deposit %</label>
+          <input id="depositPct" type="number" step="1" value="0" oninput="renderAll()">
+        </div>
+      </div>
+      <div class="actions">
+        <button class="blue" onclick="renderAll()">Update Everything</button>
+        <button class="green" onclick="printCustomer()">Print Customer Quote</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Live Map / Gate Movement</h2>
+      <p class="small">Drag the <b>orange gate line</b>. The red line and arc show exactly where the gate swings open. Section labels update as you move the gate.</p>
+      <div id="mapWrap"></div>
+      <h2 style="margin-top:14px;">Customer Checkout Preview</h2>
+      <div id="checkoutPreview" class="customer-page"></div>
+    </div>
+    <div class="card">
+      <h2>Product Picture / Sketch</h2>
+      <p class="small">When Lakeland is selected, this shows the Lakeland gate/product picture. If the image is missing, a black-and-white sketch prints instead.</p>
+      <img id="productPhoto" class="product-photo" src="images/lakeland_single_gate.jpg" onerror="this.classList.add('hidden');document.getElementById('productSketch').classList.remove('hidden');">
+      <div id="productSketch" class="sketch hidden"></div>
+      <h2 style="margin-top:14px;">Live Totals</h2>
+      <div id="totalsBox"></div>
+      <h2 style="margin-top:14px;">Gate Details</h2>
+      <div id="gateDetails"></div>
+    </div>
+  </div>
+  <div id="printArea" class="print-only-area" style="display:none;"></div>
+</div>
+<script>
+var isDraggingGate = false;
+function el(id) { return document.getElementById(id); }
+function val(id, fallback) {
+  var e = el(id);
+  var n = e ? Number(e.value) : fallback;
+  return isNaN(n) ? fallback : n;
+}
+function txt(id) {
+  var e = el(id);
+  return e ? e.value : "";
+}
+function setVal(id, v) {
+  var e = el(id);
+  if (e) e.value = v;
+}
+function money(n) {
+  return Number(n || 0).toLocaleString(undefined, { minimumFractionDigits:2, maximumFractionDigits:2 });
+}
+function swingLabel(v) {
+  var m = {
+    outswing_left:"Outswing Left",
+    outswing_right:"Outswing Right",
+    inswing_left:"Inswing Left",
+    inswing_right:"Inswing Right"
+  };
+  return m[v] || "Outswing Left";
+}
+function quoteTypeLabel(v) {
+  var m = {
+    materials_only:"Materials Only",
+    materials_labor:"Materials + Labor",
+    labor_only:"Labor Only"
+  };
+  return m[v] || "Materials Only";
+}
+function pricingLabel(v) {
+  var m = {
+    auto:"Auto",
+    retail:"Retail",
+    wholesale:"Wholesale"
+  };
+  return m[v] || "Auto";
+}
+function styleChanged() {
+  updateProductImage();
+  renderAll();
+}
+function gateTypeChanged() {
+  if (txt("gateType") === "double" && val("gateWidth",4) < 8) setVal("gateWidth",10);
+  if (txt("gateType") === "single" && val("gateWidth",4) > 6) setVal("gateWidth",4);
+  updateProductImage();
+  renderAll();
+}
+function updateProductImage() {
+  var style = txt("style");
+  var gateType = txt("gateType");
+  var img = el("productPhoto");
+  var sketch = el("productSketch");
+  if (!img || !sketch) return;
+  img.classList.remove("hidden");
+  sketch.classList.add("hidden");
+  if (style === "Lakeland" && gateType === "double") img.src = "images/lakeland_double_gate.jpg";
+  else if (style === "Lakeland") img.src = "images/lakeland_single_gate.jpg";
+  else {
+    img.classList.add("hidden");
+    sketch.classList.remove("hidden");
+  }
+  sketch.innerHTML = buildProductSketch();
+}
+function clampGate() {
+  var len = val("runLength",48);
+  var width = val("gateWidth",4);
+  var start = val("gateStart",2);
+  if (len < 1) len = 1;
+  if (width < 1) width = 1;
+  if (width > len) width = len;
+  start = Math.max(0, Math.min(len - width, start));
+  setVal("runLength", Math.round(len * 100) / 100);
+  setVal("gateWidth", Math.round(width * 100) / 100);
+  setVal("gateStart", Math.round(start * 100) / 100);
+}
+function xFromFt(ft) {
+  var len = val("runLength",48);
+  return 80 + (ft / len) * 860;
+}
+function ftFromX(x) {
+  var len = val("runLength",48);
+  var t = Math.max(0, Math.min(1, (x - 80) / 860));
+  return t * len;
+}
+function sectionText(length) {
+  var sw = val("sectionWidth",8);
+  var full = Math.floor(length / sw);
+  var rem = Math.round((length - full * sw) * 100) / 100;
+  if (full === 0 && rem > 0) return rem + "' cut";
+  if (rem > 0) return full + " x " + sw + "' + " + rem + "' cut";
+  return full + " x " + sw + "'";
+}
+function calc() {
+  clampGate();
+  var runLen = val("runLength",48);
+  var gateStart = val("gateStart",2);
+  var gateWidth = val("gateWidth",4);
+  var gateEnd = gateStart + gateWidth;
+  var leftLen = gateStart;
+  var rightLen = runLen - gateEnd;
+  var fenceLen = Math.max(0, runLen - gateWidth);
+  var sw = val("sectionWidth",8);
+  var leftSections = Math.ceil(leftLen / sw);
+  var rightSections = Math.ceil(rightLen / sw);
+  var totalSections = leftSections + rightSections;
+  var linePosts = Math.max(0, leftSections - 1) + Math.max(0, rightSections - 1);
+  var endPosts = 2;
+  var gatePosts = 2;
+  var totalPosts = linePosts + endPosts + gatePosts;
+  var pricingMode = txt("pricingMode");
+  var quoteType = txt("quoteType");
+  var materialsRetail = val("materialsRetail",0);
+  var gateRetail = val("gateRetail",0);
+  var laborRetail = val("laborRetail",0);
+  var factor = 1;
+  if (pricingMode === "wholesale") factor = 0.85;
+  if (pricingMode === "auto") factor = 0.85;
+  var materialAmount = 0;
+  var gateAmount = 0;
+  var laborAmount = 0;
+  if (quoteType === "materials_only" || quoteType === "materials_labor") {
+    materialAmount = materialsRetail * factor;
+    gateAmount = gateRetail * factor;
+  }
+  if (quoteType === "labor_only" || quoteType === "materials_labor") {
+    laborAmount = laborRetail;
+  }
+  var subtotal = materialAmount + gateAmount + laborAmount;
+  var cardFee = txt("paymentMethod") === "credit" ? subtotal * 0.035 : 0;
+  var grand = subtotal + cardFee;
+  var deposit = quoteType === "materials_labor" ? grand * (val("depositPct",0) / 100) : 0;
+  return {
+    runLen:runLen,
+    gateStart:gateStart,
+    gateWidth:gateWidth,
+    gateEnd:gateEnd,
+    leftLen:leftLen,
+    rightLen:rightLen,
+    fenceLen:fenceLen,
+    sectionWidth:sw,
+    leftSections:leftSections,
+    rightSections:rightSections,
+    totalSections:totalSections,
+    linePosts:linePosts,
+    endPosts:endPosts,
+    gatePosts:gatePosts,
+    totalPosts:totalPosts,
+    materialAmount:materialAmount,
+    gateAmount:gateAmount,
+    laborAmount:laborAmount,
+    cardFee:cardFee,
+    subtotal:subtotal,
+    grand:grand,
+    deposit:deposit
+  };
+}
+function buildMapSvg() {
+  var c = calc();
+  var y = 185;
+  var gx1 = xFromFt(c.gateStart);
+  var gx2 = xFromFt(c.gateEnd);
+  var gmid = (gx1 + gx2) / 2;
+  var swing = txt("swing");
+  var isIn = swing.indexOf("in") === 0;
+  var isLeft = swing.indexOf("left") >= 0;
+  var side = isIn ? 1 : -1;
+  var hingeX = isLeft ? gx1 : gx2;
+  var gatePx = Math.abs(gx2 - gx1);
+  var openY = y + side * gatePx;
+  var arcCX = hingeX + (isLeft ? gatePx * .38 : -gatePx * .38);
+  var arcCY = y + side * gatePx * .75;
+  var svg = "";
+  svg += "<svg id='gateMapSvg' width='1000' height='390' viewBox='0 0 1000 390' xmlns='http://www.w3.org/2000/svg' style='touch-action:none; user-select:none;'>";
+  svg += "<defs><marker id='arrow' markerWidth='9' markerHeight='9' refX='7' refY='3' orient='auto'><path d='M0,0 L0,6 L8,3 z' fill='#dc2626'/></marker></defs>";
+  svg += "<rect width='100%' height='100%' fill='#ffffff'/>";
+  svg += "<text x='500' y='28' text-anchor='middle' font-family='Arial' font-size='20' font-weight='900'>Customer Gate Layout</text>";
+  if (c.leftLen > 0) {
+    svg += "<line x1='80' y1='" + y + "' x2='" + gx1 + "' y2='" + y + "' stroke='#111827' stroke-width='8' stroke-linecap='round'/>";
+    svg += "<text x='" + ((80 + gx1)/2) + "' y='" + (y - 28) + "' text-anchor='middle' font-family='Arial' font-size='15' font-weight='900' fill='#1e3a8a'>" + sectionText(c.leftLen) + "</text>";
+  }
+  if (c.rightLen > 0) {
+    svg += "<line x1='" + gx2 + "' y1='" + y + "' x2='940' y2='" + y + "' stroke='#111827' stroke-width='8' stroke-linecap='round'/>";
+    svg += "<text x='" + ((gx2 + 940)/2) + "' y='" + (y - 28) + "' text-anchor='middle' font-family='Arial' font-size='15' font-weight='900' fill='#1e3a8a'>" + sectionText(c.rightLen) + "</text>";
+  }
+  svg += "<path d='M " + hingeX + " " + y + " Q " + arcCX + " " + arcCY + " " + hingeX + " " + openY + "' fill='none' stroke='#dc2626' stroke-width='5' marker-end='url(#arrow)'/>";
+  svg += "<line x1='" + hingeX + "' y1='" + y + "' x2='" + hingeX + "' y2='" + openY + "' stroke='#dc2626' stroke-width='4' stroke-linecap='round'/>";
+  svg += "<g id='dragGate' style='cursor:grab;'>";
+  svg += "<line x1='" + gx1 + "' y1='" + y + "' x2='" + gx2 + "' y2='" + y + "' stroke='#f97316' stroke-width='18' stroke-linecap='round'/>";
+  svg += "<line x1='" + gx1 + "' y1='" + y + "' x2='" + gx2 + "' y2='" + y + "' stroke='#7c2d12' stroke-width='2'/>";
+  svg += "<circle cx='" + gx1 + "' cy='" + y + "' r='7' fill='#7c2d12'/>";
+  svg += "<circle cx='" + gx2 + "' cy='" + y + "' r='7' fill='#7c2d12'/>";
+  svg += "<text x='" + gmid + "' y='" + (y + 40) + "' text-anchor='middle' font-family='Arial' font-size='16' font-weight='900' fill='#7c2d12'>" + c.gateWidth + "' GATE</text>";
+  svg += "<text x='" + gmid + "' y='" + (y + 62) + "' text-anchor='middle' font-family='Arial' font-size='13' font-weight='900' fill='#dc2626'>" + swingLabel(swing) + "</text>";
+  svg += "</g>";
+  svg += "<text x='80' y='340' font-family='Arial' font-size='12' fill='#4b5563'>Orange = gate opening. Red = swing/open direction. Drag orange gate left/right.</text>";
+  svg += "</svg>";
+  return svg;
+}
+function attachGateDrag() {
+  var svg = el("gateMapSvg");
+  var gate = el("dragGate");
+  if (!svg || !gate) return;
+  gate.addEventListener("pointerdown", function(e) {
+    isDraggingGate = true;
+    gate.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  gate.addEventListener("pointermove", function(e) {
+    if (!isDraggingGate) return;
+    e.preventDefault();
+    var rect = svg.getBoundingClientRect();
+    var viewX = (e.clientX - rect.left) * (1000 / rect.width);
+    var centerFt = ftFromX(viewX);
+    var width = val("gateWidth",4);
+    var len = val("runLength",48);
+    var start = centerFt - width / 2;
+    start = Math.max(0, Math.min(len - width, start));
+    setVal("gateStart", Math.round(start * 100) / 100);
+    renderAll();
+  });
+  gate.addEventListener("pointerup", function(e) {
+    isDraggingGate = false;
+  });
+  gate.addEventListener("pointercancel", function(e) {
+    isDraggingGate = false;
+  });
+}
+function buildProductSketch() {
+  return "<svg width='100%' height='230' viewBox='0 0 420 230' xmlns='http://www.w3.org/2000/svg'>"
+    + "<rect width='100%' height='100%' fill='#fff'/>"
+    + "<text x='210' y='24' text-anchor='middle' font-family='Arial' font-size='18' font-weight='900'>" + txt("style") + " Sketch</text>"
+    + "<rect x='60' y='60' width='300' height='120' fill='none' stroke='#111827' stroke-width='5'/>"
+    + "<line x1='100' y1='60' x2='100' y2='180' stroke='#111827' stroke-width='3'/>"
+    + "<line x1='140' y1='60' x2='140' y2='180' stroke='#111827' stroke-width='3'/>"
+    + "<line x1='180' y1='60' x2='180' y2='180' stroke='#111827' stroke-width='3'/>"
+    + "<line x1='220' y1='60' x2='220' y2='180' stroke='#111827' stroke-width='3'/>"
+    + "<line x1='260' y1='60' x2='260' y2='180' stroke='#111827' stroke-width='3'/>"
+    + "<line x1='300' y1='60' x2='300' y2='180' stroke='#111827' stroke-width='3'/>"
+    + "</svg>";
+}
+function updateTotals() {
+  var c = calc();
+  var html = "";
+  html += "<table><tbody>";
+  html += "<tr><td>Fence Materials</td><td class='right'>$" + money(c.materialAmount) + "</td></tr>";
+  html += "<tr><td>Gate</td><td class='right'>$" + money(c.gateAmount) + "</td></tr>";
+  html += "<tr><td>Labor</td><td class='right'>$" + money(c.laborAmount) + "</td></tr>";
+  if (c.cardFee > 0) html += "<tr><td>Credit Card Fee 3.5%</td><td class='right'>$" + money(c.cardFee) + "</td></tr>";
+  html += "<tr><th>Grand Total</th><th class='right'>$" + money(c.grand) + "</th></tr>";
+  if (c.deposit > 0) html += "<tr><td>Deposit</td><td class='right'>$" + money(c.deposit) + "</td></tr>";
+  html += "</tbody></table>";
+  el("totalsBox").innerHTML = html;
+  el("gateDetails").innerHTML =
+    "<div><span class='pill'>" + txt("gateType") + "</span></div>"
+    + "<table><tbody>"
+    + "<tr><td>Gate Start</td><td class='right'>" + c.gateStart + "'</td></tr>"
+    + "<tr><td>Gate End</td><td class='right'>" + c.gateEnd + "'</td></tr>"
+    + "<tr><td>Opening</td><td class='right'>" + c.gateWidth + "'</td></tr>"
+    + "<tr><td>Swing</td><td class='right'>" + swingLabel(txt("swing")) + "</td></tr>"
+    + "</tbody></table>";
+}
+function lineTotalCell(amount) {
+  var mode = txt("customerPrices");
+  if (mode === "grand_only") return "";
+  if (mode === "mask_line") {
+    var digits = money(amount).replace(/[^0-9]/g,"");
+    return "***" + digits.slice(-2);
+  }
+  return "$" + money(amount);
+}
+function customerShowsUnit() {
+  return txt("customerPrices") === "show_all";
+}
+function customerShowsLine() {
+  return txt("customerPrices") !== "grand_only";
+}
+function buildCustomerQuoteHtml() {
+  var c = calc();
+  var showUnit = customerShowsUnit();
+  var showLine = customerShowsLine();
+  var html = "";
+  html += "<div class='customer-page'>";
+  html += "<h2>Fence Quote</h2>";
+  html += "<div><b>Customer:</b> " + txt("customerName") + "</div>";
+  html += "<div><b>Address:</b> " + txt("jobAddress") + "</div>";
+  html += "<div><b>Quote Type:</b> " + quoteTypeLabel(txt("quoteType")) + " | <b>Pricing:</b> " + pricingLabel(txt("pricingMode")) + "</div>";
+  html += "<div style='display:grid; grid-template-columns:1.15fr .85fr; gap:10px; margin-top:10px; align-items:start;'>";
+  html += "<div>" + buildMapSvg() + "</div>";
+  html += "<div>";
+  html += "<img style='width:100%;max-height:210px;object-fit:contain;border:1px solid #d1d5db;border-radius:10px;' src='" + el("productPhoto").src + "'>";
+  html += "</div>";
+  html += "</div>";
+  html += "<h3>Quantity Summary</h3>";
+  html += "<table><tbody>";
+  html += "<tr><td>Total Run</td><td class='right'>" + c.runLen + "'</td></tr>";
+  html += "<tr><td>Gate Opening</td><td class='right'>" + c.gateWidth + "'</td></tr>";
+  html += "<tr><td>Left Section</td><td class='right'>" + sectionText(c.leftLen) + "</td></tr>";
+  html += "<tr><td>Right Section</td><td class='right'>" + sectionText(c.rightLen) + "</td></tr>";
+  html += "<tr><td>Fence Sections</td><td class='right'>" + c.totalSections + "</td></tr>";
+  html += "<tr><td>Total Posts</td><td class='right'>" + c.totalPosts + "</td></tr>";
+  html += "<tr><td>Gate Swing</td><td class='right'>" + swingLabel(txt("swing")) + "</td></tr>";
+  html += "</tbody></table>";
+  html += "<h3>Quote Lines</h3>";
+  html += "<table><thead><tr><th>Description</th>";
+  if (showUnit) html += "<th class='right'>Unit Price</th>";
+  html += "<th class='right'>Qty</th>";
+  if (showLine) html += "<th class='right'>Line Total</th>";
+  html += "</tr></thead><tbody>";
+  function row(desc, unit, qty, total) {
+    html += "<tr><td>" + desc + "</td>";
+    if (showUnit) html += "<td class='right'>$" + money(unit) + "</td>";
+    html += "<td class='right'>" + qty + "</td>";
+    if (showLine) html += "<td class='right'>" + lineTotalCell(total) + "</td>";
+    html += "</tr>";
+  }
+  if (txt("quoteType") !== "labor_only") {
+    row(txt("style") + " fence materials", c.materialAmount, "1", c.materialAmount);
+    row(txt("style") + " " + txt("gateType") + " gate - " + swingLabel(txt("swing")), c.gateAmount, "1", c.gateAmount);
+  }
+  if (txt("quoteType") !== "materials_only") {
+    row("Installation labor", c.laborAmount, "1", c.laborAmount);
+  }
+  if (c.cardFee > 0) row("Credit card fee 3.5%", c.cardFee, "1", c.cardFee);
+  html += "</tbody></table>";
+  html += "<div class='grand'>Grand Total: $" + money(c.grand) + "</div>";
+  if (c.deposit > 0) html += "<div class='right'><b>Deposit:</b> $" + money(c.deposit) + "</div>";
+  html += "</div>";
+  return html;
+}
+function renderAll() {
+  clampGate();
+  updateProductImage();
+  el("mapWrap").innerHTML = buildMapSvg();
+  attachGateDrag();
+  updateTotals();
+  el("checkoutPreview").innerHTML = buildCustomerQuoteHtml();
+  el("printArea").innerHTML = buildCustomerQuoteHtml();
+}
+function printCustomer() {
+  renderAll();
+  window.print();
+}
+document.addEventListener("DOMContentLoaded", renderAll);
+</script>
+</body>
+</html>

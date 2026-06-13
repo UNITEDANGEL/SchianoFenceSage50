@@ -1,0 +1,2 @@
+﻿QuoteNumber,QuoteDate,CustomerID,CustomerName,ShipToAddress,ItemID,Description,Quantity,UnitPrice,LineTotal,Taxable,JobName,Notes
+Q-SAMPLE,2026-06-10,CASH,Sample Customer,"123 Sample St",LAKE6,"Sample fence section",10,0,0,Y,"Sample Fence Job","Template only - replace after exporting real Sage quote"

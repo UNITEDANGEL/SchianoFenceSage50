@@ -1,9 +1,11 @@
-﻿__pycache__/
+﻿node_modules/
+.next/
+out/
+dist/
+build/
+__pycache__/
 *.pyc
 *.log
 *.tmp
+.DS_Store
 _write_test.txt
-app/exports/
-sage_export/*.csv
-logs/*.log
-app_single_screen/

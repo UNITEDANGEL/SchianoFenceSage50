@@ -1,0 +1,1318 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sage 50 Fence Quote Builder</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root {
+  --bg: #eef2f7;
+  --card: #ffffff;
+  --ink: #111827;
+  --muted: #6b7280;
+  --line: #d1d5db;
+  --dark: #111827;
+  --blue: #2563eb;
+  --green: #047857;
+  --red: #991b1b;
+  --orange: #b45309;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+}
+header {
+  background: var(--dark);
+  color: white;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+header h1 {
+  margin: 0;
+  font-size: 22px;
+}
+header .sub {
+  font-size: 12px;
+  color: #d1d5db;
+  margin-top: 3px;
+}
+.shell {
+  display: grid;
+  grid-template-columns: 430px 1fr 450px;
+  gap: 12px;
+  padding: 12px;
+}
+.card {
+  background: var(--card);
+  border-radius: 12px;
+  box-shadow: 0 1px 5px rgba(0,0,0,.12);
+  overflow: hidden;
+}
+.card h2 {
+  margin: 0;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 17px;
+}
+.card-body {
+  padding: 14px;
+}
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f8fafc;
+}
+.tab {
+  width: auto;
+  margin: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #111827;
+  border-right: 1px solid #e5e7eb;
+  padding: 10px 12px;
+}
+.tab.active {
+  background: #111827;
+  color: white;
+}
+.tab-page {
+  display: none;
+}
+.tab-page.active {
+  display: block;
+}
+label {
+  display: block;
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #374151;
+}
+input, select, textarea, button {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  font-size: 14px;
+}
+textarea {
+  resize: vertical;
+}
+button {
+  border: none;
+  background: #1f2937;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+}
+button:hover {
+  opacity: .92;
+}
+button.blue {
+  background: var(--blue);
+}
+button.green {
+  background: var(--green);
+}
+button.red {
+  background: var(--red);
+}
+button.gray {
+  background: #64748b;
+}
+button.orange {
+  background: var(--orange);
+}
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.row3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+.actions3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+.small {
+  font-size: 12px;
+  color: var(--muted);
+}
+canvas {
+  display: block;
+  width: 100%;
+  height: 610px;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  cursor: crosshair;
+}
+.toolbar {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 7px;
+  padding: 10px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f8fafc;
+}
+.toolbar button {
+  font-size: 12px;
+  padding: 7px;
+}
+.pill {
+  display: inline-block;
+  padding: 3px 8px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  font-size: 12px;
+  margin: 2px;
+}
+.kpi {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.kpi div {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  padding: 10px;
+  border-radius: 9px;
+}
+.kpi strong {
+  display: block;
+  font-size: 18px;
+  margin-top: 4px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-top: 10px;
+}
+th, td {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 7px 5px;
+  text-align: left;
+}
+th {
+  background: #f8fafc;
+}
+.totalBox {
+  margin-top: 12px;
+  padding: 12px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 10px;
+}
+.totalBox .big {
+  font-size: 26px;
+  font-weight: bold;
+}
+.segment-row, .gate-row, .addon-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 75px;
+  gap: 6px;
+  align-items: end;
+  margin-bottom: 6px;
+}
+.segment-row button, .gate-row button, .addon-row button {
+  padding: 8px 4px;
+}
+hr {
+  border: 0;
+  border-top: 1px solid #e5e7eb;
+  margin: 14px 0;
+}
+.notice {
+  padding: 10px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  font-size: 13px;
+}
+@media (max-width: 1200px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+  canvas {
+    height: 520px;
+  }
+}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Sage 50 Fence Quote Builder</h1>
+    <div class="sub">Version 2 - any shape, more options, cleaner quote output, Sage-ready CSV export</div>
+  </div>
+  <div>
+    <span class="pill">Local App</span>
+    <span class="pill">No Login</span>
+    <span class="pill">Sage CSV</span>
+  </div>
+</header>
+
+<div class="shell">
+  <section class="card">
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('job')">Job</button>
+      <button class="tab" onclick="showTab('fence')">Fence</button>
+      <button class="tab" onclick="showTab('gates')">Gates</button>
+      <button class="tab" onclick="showTab('pricing')">Pricing</button>
+      <button class="tab" onclick="showTab('addons')">Add-ons</button>
+    </div>
+
+    <div class="card-body">
+      <div id="tab-job" class="tab-page active">
+        <h3>Customer / Job Info</h3>
+
+        <label>Customer Name</label>
+        <input id="customerName" value="Sample Customer">
+
+        <label>Phone</label>
+        <input id="customerPhone">
+
+        <label>Email</label>
+        <input id="customerEmail">
+
+        <label>Job Address</label>
+        <input id="jobAddress">
+
+        <div class="row">
+          <div>
+            <label>Quote Number</label>
+            <input id="quoteNumber">
+          </div>
+          <div>
+            <label>Quote Date</label>
+            <input id="quoteDate" type="date">
+          </div>
+        </div>
+
+        <label>Salesperson / Estimator</label>
+        <input id="estimatorName">
+
+        <label>Customer Notes</label>
+        <textarea id="notes" rows="4"></textarea>
+      </div>
+
+      <div id="tab-fence" class="tab-page">
+        <h3>Fence Setup</h3>
+
+        <div class="row">
+          <div>
+            <label>Fence Type</label>
+            <select id="fenceType"></select>
+          </div>
+          <div>
+            <label>Fence Height</label>
+            <select id="fenceHeight">
+              <option value="3">3 ft</option>
+              <option value="4">4 ft</option>
+              <option value="5">5 ft</option>
+              <option value="6" selected>6 ft</option>
+              <option value="7">7 ft</option>
+              <option value="8">8 ft</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Layout Type</label>
+            <select id="layoutClosed" onchange="rebuildSegments(); draw();">
+              <option value="open" selected>Open shape</option>
+              <option value="closed">Closed shape / full enclosure</option>
+            </select>
+          </div>
+          <div>
+            <label>Post Spacing Override</label>
+            <input id="postSpacingOverride" type="number" min="0" step="0.5" placeholder="blank = default">
+          </div>
+        </div>
+
+        <label>Preset Shape</label>
+        <select id="presetShape">
+          <option value="">Manual drawing</option>
+          <option value="straight">Straight line</option>
+          <option value="l">L-shape</option>
+          <option value="u">U-shape</option>
+          <option value="box">Box / rectangle</option>
+          <option value="zigzag">Multi-section / zigzag</option>
+        </select>
+
+        <button class="blue" onclick="applyPresetShape()">Load Preset Shape</button>
+
+        <hr>
+
+        <h3>Site Conditions</h3>
+
+        <div class="row">
+          <div>
+            <label>Terrain</label>
+            <select id="terrain">
+              <option value="normal" selected>Normal</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+              <option value="rocky">Rocky / difficult</option>
+            </select>
+          </div>
+          <div>
+            <label>Access</label>
+            <select id="access">
+              <option value="normal" selected>Normal</option>
+              <option value="tight">Tight access</option>
+              <option value="carry">Long carry</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Removal Needed</label>
+            <select id="removalNeeded">
+              <option value="no" selected>No</option>
+              <option value="yes">Yes</option>
+            </select>
+          </div>
+          <div>
+            <label>Removal LF Override</label>
+            <input id="removalLf" type="number" min="0" step="1" placeholder="blank = total LF">
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-gates" class="tab-page">
+        <h3>Gates</h3>
+        <p class="small">Add each gate separately so the quote can handle walk gates, double gates, and drive gates.</p>
+
+        <div class="row">
+          <div>
+            <label>Gate Type</label>
+            <select id="newGateType">
+              <option value="Single Walk Gate">Single Walk Gate</option>
+              <option value="Double Gate">Double Gate</option>
+              <option value="Drive Gate">Drive Gate</option>
+              <option value="Custom Gate">Custom Gate</option>
+            </select>
+          </div>
+          <div>
+            <label>Width</label>
+            <input id="newGateWidth" type="number" min="1" step="0.5" value="4">
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Quantity</label>
+            <input id="newGateQty" type="number" min="1" step="1" value="1">
+          </div>
+          <div>
+            <label>Price Each</label>
+            <input id="newGatePrice" type="number" min="0" step="1" value="350">
+          </div>
+        </div>
+
+        <button class="green" onclick="addGate()">Add Gate</button>
+
+        <div id="gateList"></div>
+      </div>
+
+      <div id="tab-pricing" class="tab-page">
+        <h3>Pricing Controls</h3>
+
+        <div class="row">
+          <div>
+            <label>Material Price per LF</label>
+            <input id="materialPerLfOverride" type="number" min="0" step="0.01" placeholder="blank = default">
+          </div>
+          <div>
+            <label>Labor Price per LF</label>
+            <input id="laborPerLfOverride" type="number" min="0" step="0.01" placeholder="blank = default">
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Markup %</label>
+            <input id="markupPct" type="number" min="0" step="0.1" value="0">
+          </div>
+          <div>
+            <label>Tax %</label>
+            <input id="taxPct" type="number" min="0" step="0.1" value="0">
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Discount $</label>
+            <input id="discountAmount" type="number" min="0" step="0.01" value="0">
+          </div>
+          <div>
+            <label>Minimum Job Charge</label>
+            <input id="minimumCharge" type="number" min="0" step="0.01" value="0">
+          </div>
+        </div>
+
+        <label>Deposit %</label>
+        <input id="depositPct" type="number" min="0" max="100" step="1" value="50">
+      </div>
+
+      <div id="tab-addons" class="tab-page">
+        <h3>Add-ons / Extras</h3>
+
+        <div class="row">
+          <div>
+            <label>Add-on Name</label>
+            <input id="addonName" placeholder="Permit, delivery, haul away, staining, etc.">
+          </div>
+          <div>
+            <label>Sage Code</label>
+            <input id="addonCode" placeholder="ADDON">
+          </div>
+        </div>
+
+        <div class="row3">
+          <div>
+            <label>Qty</label>
+            <input id="addonQty" type="number" min="0" step="0.01" value="1">
+          </div>
+          <div>
+            <label>Unit</label>
+            <input id="addonUnit" value="EA">
+          </div>
+          <div>
+            <label>Unit Price</label>
+            <input id="addonPrice" type="number" min="0" step="0.01" value="0">
+          </div>
+        </div>
+
+        <button class="green" onclick="addAddon()">Add Item</button>
+
+        <div class="actions3">
+          <button class="orange" onclick="quickAddon('Permit', 'PERMIT', 1, 'EA', 125)">Permit</button>
+          <button class="orange" onclick="quickAddon('Delivery', 'DELIVERY', 1, 'EA', 150)">Delivery</button>
+          <button class="orange" onclick="quickAddon('Haul Away', 'HAUL-AWAY', 1, 'EA', 250)">Haul Away</button>
+        </div>
+
+        <div id="addonList"></div>
+      </div>
+
+      <hr>
+
+      <div class="actions">
+        <button class="green" onclick="calculateQuote()">Calculate</button>
+        <button class="blue" onclick="exportSageCsv()">Sage CSV</button>
+        <button class="gray" onclick="exportJobJson()">Job JSON</button>
+        <button class="red" onclick="resetAll()">Reset</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Drawing / Layout</h2>
+
+    <div class="toolbar">
+      <button onclick="setDrawMode('draw')" class="blue">Draw</button>
+      <button onclick="undoPoint()">Undo Point</button>
+      <button onclick="clearDrawing()" class="red">Clear</button>
+      <button onclick="fitDrawing()">Center</button>
+      <button onclick="calculateQuote()" class="green">Calculate</button>
+    </div>
+
+    <canvas id="canvas" width="1000" height="610"></canvas>
+
+    <div class="card-body">
+      <div class="notice">
+        Click points to draw the fence. Enter the real footage for each segment below. The drawing is for layout; the footage boxes control the estimate.
+      </div>
+
+      <h3>Fence Segments</h3>
+      <div id="segments"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Quote / Materials</h2>
+    <div class="card-body">
+      <div id="quoteBadges"></div>
+
+      <div class="kpi">
+        <div>Total LF <strong id="kpiLf">0</strong></div>
+        <div>Total Posts <strong id="kpiPosts">0</strong></div>
+        <div>Panels/Sections <strong id="kpiSections">0</strong></div>
+        <div>Concrete Bags <strong id="kpiConcrete">0</strong></div>
+      </div>
+
+      <div class="totalBox">
+        <div>Estimated Total</div>
+        <div class="big" id="kpiTotal">$0.00</div>
+        <div class="small">Deposit Due: <span id="kpiDeposit">$0.00</span></div>
+      </div>
+
+      <h3>Line Items</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Description</th>
+            <th>Qty</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody id="lineItems"></tbody>
+      </table>
+
+      <h3>Material Counts</h3>
+      <table>
+        <tbody id="materialCounts"></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>
+const fenceRules = {
+  "Wood Privacy": {
+    sageCode: "FENCE-WOOD-PRIVACY",
+    postSpacing: 8,
+    panelWidth: 8,
+    railsPerSection: 3,
+    concreteBagsPerPost: 1.5,
+    materialPerLf: 32,
+    laborPerLf: 24,
+    removalPerLf: 6,
+    capIncluded: true
+  },
+  "Vinyl Privacy": {
+    sageCode: "FENCE-VINYL-PRIVACY",
+    postSpacing: 8,
+    panelWidth: 8,
+    railsPerSection: 2,
+    concreteBagsPerPost: 1.5,
+    materialPerLf: 46,
+    laborPerLf: 26,
+    removalPerLf: 6,
+    capIncluded: true
+  },
+  "Chain Link": {
+    sageCode: "FENCE-CHAIN-LINK",
+    postSpacing: 10,
+    panelWidth: 10,
+    railsPerSection: 1,
+    concreteBagsPerPost: 1.25,
+    materialPerLf: 19,
+    laborPerLf: 16,
+    removalPerLf: 5,
+    capIncluded: false
+  },
+  "Aluminum": {
+    sageCode: "FENCE-ALUMINUM",
+    postSpacing: 6,
+    panelWidth: 6,
+    railsPerSection: 2,
+    concreteBagsPerPost: 1.25,
+    materialPerLf: 42,
+    laborPerLf: 24,
+    removalPerLf: 5,
+    capIncluded: true
+  },
+  "Split Rail": {
+    sageCode: "FENCE-SPLIT-RAIL",
+    postSpacing: 10,
+    panelWidth: 10,
+    railsPerSection: 2,
+    concreteBagsPerPost: 1,
+    materialPerLf: 18,
+    laborPerLf: 15,
+    removalPerLf: 4,
+    capIncluded: false
+  },
+  "Farm Fence": {
+    sageCode: "FENCE-FARM",
+    postSpacing: 12,
+    panelWidth: 12,
+    railsPerSection: 0,
+    concreteBagsPerPost: 1,
+    materialPerLf: 14,
+    laborPerLf: 14,
+    removalPerLf: 4,
+    capIncluded: false
+  },
+  "Temporary Fence": {
+    sageCode: "FENCE-TEMP",
+    postSpacing: 10,
+    panelWidth: 10,
+    railsPerSection: 0,
+    concreteBagsPerPost: 0,
+    materialPerLf: 10,
+    laborPerLf: 8,
+    removalPerLf: 2,
+    capIncluded: false
+  },
+  "Custom Fence": {
+    sageCode: "FENCE-CUSTOM",
+    postSpacing: 8,
+    panelWidth: 8,
+    railsPerSection: 2,
+    concreteBagsPerPost: 1.5,
+    materialPerLf: 35,
+    laborPerLf: 25,
+    removalPerLf: 5,
+    capIncluded: true
+  }
+};
+
+let points = [];
+let segmentLengths = [];
+let gates = [];
+let addons = [];
+let latestQuote = null;
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+function init() {
+  const fenceType = document.getElementById("fenceType");
+  Object.keys(fenceRules).forEach(name => {
+    const opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = name;
+    fenceType.appendChild(opt);
+  });
+
+  document.getElementById("quoteDate").value = new Date().toISOString().slice(0, 10);
+  document.getElementById("quoteNumber").value = "Q-" + new Date().toISOString().slice(0,10).replaceAll("-","") + "-001";
+
+  draw();
+  rebuildSegments();
+  renderGates();
+  renderAddons();
+}
+init();
+
+function showTab(name) {
+  document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+  document.querySelectorAll(".tab-page").forEach(x => x.classList.remove("active"));
+  event.target.classList.add("active");
+  document.getElementById("tab-" + name).classList.add("active");
+}
+
+canvas.addEventListener("click", function(e) {
+  const rect = canvas.getBoundingClientRect();
+  const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+  points.push({x, y});
+  rebuildSegments();
+  draw();
+});
+
+function applyPresetShape() {
+  const p = document.getElementById("presetShape").value;
+  if (!p) return;
+
+  if (p === "straight") {
+    points = [{x:170,y:310},{x:830,y:310}];
+    document.getElementById("layoutClosed").value = "open";
+    segmentLengths = [100];
+  }
+
+  if (p === "l") {
+    points = [{x:230,y:170},{x:230,y:450},{x:750,y:450}];
+    document.getElementById("layoutClosed").value = "open";
+    segmentLengths = [80, 120];
+  }
+
+  if (p === "u") {
+    points = [{x:260,y:160},{x:260,y:450},{x:740,y:450},{x:740,y:160}];
+    document.getElementById("layoutClosed").value = "open";
+    segmentLengths = [80, 120, 80];
+  }
+
+  if (p === "box") {
+    points = [{x:260,y:160},{x:740,y:160},{x:740,y:450},{x:260,y:450}];
+    document.getElementById("layoutClosed").value = "closed";
+    segmentLengths = [120, 80, 120, 80];
+  }
+
+  if (p === "zigzag") {
+    points = [{x:150,y:180},{x:330,y:280},{x:500,y:210},{x:680,y:340},{x:850,y:280}];
+    document.getElementById("layoutClosed").value = "open";
+    segmentLengths = [50, 45, 55, 50];
+  }
+
+  rebuildSegments();
+  draw();
+}
+
+function rebuildSegments() {
+  const closed = document.getElementById("layoutClosed").value === "closed";
+  let count = Math.max(0, points.length - 1);
+  if (closed && points.length > 2) count += 1;
+
+  while (segmentLengths.length < count) segmentLengths.push("");
+  while (segmentLengths.length > count) segmentLengths.pop();
+
+  const holder = document.getElementById("segments");
+  holder.innerHTML = "";
+
+  for (let i = 0; i < count; i++) {
+    const div = document.createElement("div");
+    div.className = "segment-row";
+    div.innerHTML = `
+      <label>Seg ${i + 1}</label>
+      <input type="number" min="0" step="0.01" value="${segmentLengths[i] || ""}" placeholder="Length in feet" onchange="segmentLengths[${i}] = this.value">
+      <button class="gray" onclick="segmentLengths[${i}]=''; rebuildSegments();">Clear</button>
+    `;
+    holder.appendChild(div);
+  }
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.strokeStyle = "#e5e7eb";
+  ctx.lineWidth = 1;
+  for (let x = 0; x < canvas.width; x += 25) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, canvas.height);
+    ctx.stroke();
+  }
+  for (let y = 0; y < canvas.height; y += 25) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(canvas.width, y);
+    ctx.stroke();
+  }
+
+  if (points.length > 0) {
+    ctx.strokeStyle = "#111827";
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(points[i].x, points[i].y);
+    }
+    if (document.getElementById("layoutClosed").value === "closed" && points.length > 2) {
+      ctx.closePath();
+    }
+    ctx.stroke();
+
+    ctx.font = "13px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    for (let i = 0; i < points.length; i++) {
+      const p = points[i];
+
+      ctx.fillStyle = "#2563eb";
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 9, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "white";
+      ctx.fillText(String(i + 1), p.x, p.y);
+    }
+
+    drawSegmentLabels();
+  }
+}
+
+function drawSegmentLabels() {
+  const closed = document.getElementById("layoutClosed").value === "closed";
+  const segCount = segmentLengths.length;
+
+  for (let i = 0; i < segCount; i++) {
+    const a = points[i];
+    const b = (i === points.length - 1) ? points[0] : points[i + 1];
+    if (!a || !b) continue;
+
+    const mx = (a.x + b.x) / 2;
+    const my = (a.y + b.y) / 2;
+
+    ctx.fillStyle = "#fef3c7";
+    ctx.strokeStyle = "#f59e0b";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.roundRect(mx - 35, my - 13, 70, 26, 6);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "#111827";
+    ctx.font = "12px Arial";
+    const len = segmentLengths[i] ? segmentLengths[i] + " ft" : "Seg " + (i + 1);
+    ctx.fillText(len, mx, my);
+  }
+}
+
+function undoPoint() {
+  points.pop();
+  rebuildSegments();
+  draw();
+}
+
+function clearDrawing() {
+  points = [];
+  segmentLengths = [];
+  rebuildSegments();
+  draw();
+}
+
+function fitDrawing() {
+  draw();
+}
+
+function setDrawMode(mode) {
+  draw();
+}
+
+function addGate() {
+  gates.push({
+    type: document.getElementById("newGateType").value,
+    width: Number(document.getElementById("newGateWidth").value || 0),
+    qty: Number(document.getElementById("newGateQty").value || 1),
+    price: Number(document.getElementById("newGatePrice").value || 0)
+  });
+  renderGates();
+}
+
+function removeGate(i) {
+  gates.splice(i, 1);
+  renderGates();
+}
+
+function renderGates() {
+  const holder = document.getElementById("gateList");
+  holder.innerHTML = "";
+  gates.forEach((g, i) => {
+    const div = document.createElement("div");
+    div.className = "gate-row";
+    div.innerHTML = `
+      <label>${g.qty}x</label>
+      <div class="small">${escapeHtml(g.type)} - ${g.width} ft - $${money(g.price)} each</div>
+      <button class="red" onclick="removeGate(${i})">Remove</button>
+    `;
+    holder.appendChild(div);
+  });
+}
+
+function addAddon() {
+  addons.push({
+    code: document.getElementById("addonCode").value || "ADDON",
+    item: document.getElementById("addonName").value || "Add-on",
+    qty: Number(document.getElementById("addonQty").value || 1),
+    unit: document.getElementById("addonUnit").value || "EA",
+    unitPrice: Number(document.getElementById("addonPrice").value || 0)
+  });
+  renderAddons();
+}
+
+function quickAddon(name, code, qty, unit, price) {
+  addons.push({ item: name, code, qty, unit, unitPrice: price });
+  renderAddons();
+}
+
+function removeAddon(i) {
+  addons.splice(i, 1);
+  renderAddons();
+}
+
+function renderAddons() {
+  const holder = document.getElementById("addonList");
+  holder.innerHTML = "";
+  addons.forEach((a, i) => {
+    const div = document.createElement("div");
+    div.className = "addon-row";
+    div.innerHTML = `
+      <label>${a.qty} ${escapeHtml(a.unit)}</label>
+      <div class="small">${escapeHtml(a.item)} - $${money(a.unitPrice)} each</div>
+      <button class="red" onclick="removeAddon(${i})">Remove</button>
+    `;
+    holder.appendChild(div);
+  });
+}
+
+function calculateQuote() {
+  const fenceName = document.getElementById("fenceType").value;
+  const base = fenceRules[fenceName];
+
+  const totalLf = getSegmentFeet().reduce((a,b) => a + b, 0);
+  const closed = document.getElementById("layoutClosed").value === "closed";
+
+  const postSpacing = Number(document.getElementById("postSpacingOverride").value || base.postSpacing);
+  const materialPerLf = Number(document.getElementById("materialPerLfOverride").value || base.materialPerLf);
+  const laborPerLf = Number(document.getElementById("laborPerLfOverride").value || base.laborPerLf);
+
+  const cornerPosts = closed ? Math.max(points.length, 0) : Math.max(points.length - 2, 0);
+  const endPosts = closed ? 0 : (points.length >= 2 ? 2 : 0);
+
+  const gatePosts = gates.reduce((sum, g) => sum + (g.qty * 2), 0);
+
+  let linePosts = 0;
+  getSegmentFeet().forEach(length => {
+    linePosts += Math.max(0, Math.ceil(length / postSpacing) - 1);
+  });
+
+  const totalPosts = linePosts + cornerPosts + endPosts + gatePosts;
+  const sections = Math.ceil(totalLf / base.panelWidth);
+  const rails = sections * base.railsPerSection;
+  const caps = base.capIncluded ? totalPosts : 0;
+  const concreteBags = Math.ceil(totalPosts * base.concreteBagsPerPost);
+
+  let multiplier = 1;
+  const terrain = document.getElementById("terrain").value;
+  const access = document.getElementById("access").value;
+
+  if (terrain === "medium") multiplier += 0.12;
+  if (terrain === "hard") multiplier += 0.25;
+  if (terrain === "rocky") multiplier += 0.40;
+  if (access === "tight") multiplier += 0.10;
+  if (access === "carry") multiplier += 0.18;
+
+  const materialTotal = totalLf * materialPerLf;
+  const laborTotal = totalLf * laborPerLf * multiplier;
+
+  const gateTotal = gates.reduce((sum, g) => sum + (g.qty * g.price), 0);
+
+  const removalNeeded = document.getElementById("removalNeeded").value === "yes";
+  const removalLf = Number(document.getElementById("removalLf").value || totalLf);
+  const removalTotal = removalNeeded ? removalLf * base.removalPerLf : 0;
+
+  const addonLineItems = addons.map(a => ({
+    code: a.code,
+    item: a.item,
+    qty: a.qty,
+    unit: a.unit,
+    unitPrice: a.unitPrice,
+    total: round2(a.qty * a.unitPrice)
+  }));
+  const addonTotal = addonLineItems.reduce((sum, a) => sum + a.total, 0);
+
+  const markupPct = Number(document.getElementById("markupPct").value || 0);
+  const taxPct = Number(document.getElementById("taxPct").value || 0);
+  const discount = Number(document.getElementById("discountAmount").value || 0);
+  const minimumCharge = Number(document.getElementById("minimumCharge").value || 0);
+  const depositPct = Number(document.getElementById("depositPct").value || 0);
+
+  let subtotalBeforeMarkup = materialTotal + laborTotal + gateTotal + removalTotal + addonTotal;
+  const markupAmount = subtotalBeforeMarkup * (markupPct / 100);
+  let subtotal = subtotalBeforeMarkup + markupAmount - discount;
+
+  if (minimumCharge > 0 && subtotal < minimumCharge) subtotal = minimumCharge;
+
+  const taxAmount = subtotal * (taxPct / 100);
+  const grandTotal = subtotal + taxAmount;
+  const depositDue = grandTotal * (depositPct / 100);
+
+  const lineItems = [
+    {
+      code: base.sageCode,
+      item: fenceName + " Fence Package",
+      qty: round2(totalLf),
+      unit: "LF",
+      unitPrice: materialPerLf,
+      total: round2(materialTotal)
+    },
+    {
+      code: "LABOR-FENCE-INSTALL",
+      item: "Fence Installation Labor",
+      qty: round2(totalLf),
+      unit: "LF",
+      unitPrice: round2(laborPerLf * multiplier),
+      total: round2(laborTotal)
+    }
+  ];
+
+  gates.forEach(g => {
+    lineItems.push({
+      code: "GATE",
+      item: g.type + " - " + g.width + " ft",
+      qty: g.qty,
+      unit: "EA",
+      unitPrice: g.price,
+      total: round2(g.qty * g.price)
+    });
+  });
+
+  if (removalNeeded) {
+    lineItems.push({
+      code: "REMOVAL",
+      item: "Existing Fence Removal",
+      qty: round2(removalLf),
+      unit: "LF",
+      unitPrice: base.removalPerLf,
+      total: round2(removalTotal)
+    });
+  }
+
+  addonLineItems.forEach(x => lineItems.push(x));
+
+  if (markupAmount > 0) {
+    lineItems.push({
+      code: "MARKUP",
+      item: "Markup",
+      qty: 1,
+      unit: "EA",
+      unitPrice: round2(markupAmount),
+      total: round2(markupAmount)
+    });
+  }
+
+  if (discount > 0) {
+    lineItems.push({
+      code: "DISCOUNT",
+      item: "Discount",
+      qty: 1,
+      unit: "EA",
+      unitPrice: -discount,
+      total: -discount
+    });
+  }
+
+  if (taxAmount > 0) {
+    lineItems.push({
+      code: "TAX",
+      item: "Tax",
+      qty: 1,
+      unit: "EA",
+      unitPrice: round2(taxAmount),
+      total: round2(taxAmount)
+    });
+  }
+
+  latestQuote = {
+    quoteNumber: document.getElementById("quoteNumber").value,
+    quoteDate: document.getElementById("quoteDate").value,
+    customerName: document.getElementById("customerName").value,
+    customerPhone: document.getElementById("customerPhone").value,
+    customerEmail: document.getElementById("customerEmail").value,
+    jobAddress: document.getElementById("jobAddress").value,
+    estimatorName: document.getElementById("estimatorName").value,
+    notes: document.getElementById("notes").value,
+    fenceType: fenceName,
+    fenceHeight: document.getElementById("fenceHeight").value,
+    layout: closed ? "closed" : "open",
+    totalLf: round2(totalLf),
+    points,
+    segments: getSegmentFeet(),
+    gates,
+    addons,
+    materialSummary: {
+      sections,
+      panelWidth: base.panelWidth,
+      postSpacing,
+      linePosts,
+      cornerPosts,
+      endPosts,
+      gatePosts,
+      totalPosts,
+      rails,
+      caps,
+      concreteBags
+    },
+    pricing: {
+      materialTotal: round2(materialTotal),
+      laborTotal: round2(laborTotal),
+      gateTotal: round2(gateTotal),
+      removalTotal: round2(removalTotal),
+      addonTotal: round2(addonTotal),
+      markupAmount: round2(markupAmount),
+      discount: round2(discount),
+      taxAmount: round2(taxAmount),
+      grandTotal: round2(grandTotal),
+      depositDue: round2(depositDue)
+    },
+    lineItems
+  };
+
+  renderQuote();
+}
+
+function renderQuote() {
+  if (!latestQuote) return;
+
+  document.getElementById("quoteBadges").innerHTML = `
+    <span class="pill">${escapeHtml(latestQuote.fenceType)}</span>
+    <span class="pill">${latestQuote.fenceHeight} ft</span>
+    <span class="pill">${latestQuote.layout}</span>
+    <span class="pill">${latestQuote.quoteNumber}</span>
+  `;
+
+  document.getElementById("kpiLf").textContent = latestQuote.totalLf;
+  document.getElementById("kpiPosts").textContent = latestQuote.materialSummary.totalPosts;
+  document.getElementById("kpiSections").textContent = latestQuote.materialSummary.sections;
+  document.getElementById("kpiConcrete").textContent = latestQuote.materialSummary.concreteBags;
+  document.getElementById("kpiTotal").textContent = "$" + money(latestQuote.pricing.grandTotal);
+  document.getElementById("kpiDeposit").textContent = "$" + money(latestQuote.pricing.depositDue);
+
+  const tbody = document.getElementById("lineItems");
+  tbody.innerHTML = "";
+  latestQuote.lineItems.forEach(row => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${escapeHtml(row.code)}</td>
+      <td>${escapeHtml(row.item)}</td>
+      <td>${row.qty} ${escapeHtml(row.unit)}</td>
+      <td>$${money(row.total)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  const m = latestQuote.materialSummary;
+  document.getElementById("materialCounts").innerHTML = `
+    <tr><td>Line Posts</td><td>${m.linePosts}</td></tr>
+    <tr><td>Corner Posts</td><td>${m.cornerPosts}</td></tr>
+    <tr><td>End Posts</td><td>${m.endPosts}</td></tr>
+    <tr><td>Gate Posts</td><td>${m.gatePosts}</td></tr>
+    <tr><td>Total Posts</td><td>${m.totalPosts}</td></tr>
+    <tr><td>Panels / Sections</td><td>${m.sections}</td></tr>
+    <tr><td>Rails / Supports</td><td>${m.rails}</td></tr>
+    <tr><td>Post Caps</td><td>${m.caps}</td></tr>
+    <tr><td>Concrete Bags</td><td>${m.concreteBags}</td></tr>
+  `;
+}
+
+function exportSageCsv() {
+  if (!latestQuote) calculateQuote();
+
+  const rows = [];
+  rows.push([
+    "QuoteNumber",
+    "QuoteDate",
+    "CustomerName",
+    "Phone",
+    "Email",
+    "JobAddress",
+    "ItemCode",
+    "Description",
+    "Quantity",
+    "Unit",
+    "UnitPrice",
+    "LineTotal",
+    "Estimator",
+    "Notes"
+  ]);
+
+  latestQuote.lineItems.forEach(item => {
+    rows.push([
+      latestQuote.quoteNumber,
+      latestQuote.quoteDate,
+      latestQuote.customerName,
+      latestQuote.customerPhone,
+      latestQuote.customerEmail,
+      latestQuote.jobAddress,
+      item.code,
+      item.item,
+      item.qty,
+      item.unit,
+      item.unitPrice,
+      item.total,
+      latestQuote.estimatorName,
+      latestQuote.notes
+    ]);
+  });
+
+  downloadText(toCsv(rows), latestQuote.quoteNumber + "_sage_quote.csv", "text/csv");
+}
+
+function exportJobJson() {
+  if (!latestQuote) calculateQuote();
+  downloadText(JSON.stringify(latestQuote, null, 2), latestQuote.quoteNumber + "_job.json", "application/json");
+}
+
+function resetAll() {
+  if (!confirm("Reset the entire quote and drawing?")) return;
+
+  points = [];
+  segmentLengths = [];
+  gates = [];
+  addons = [];
+  latestQuote = null;
+
+  document.getElementById("customerName").value = "";
+  document.getElementById("customerPhone").value = "";
+  document.getElementById("customerEmail").value = "";
+  document.getElementById("jobAddress").value = "";
+  document.getElementById("notes").value = "";
+
+  renderGates();
+  renderAddons();
+  rebuildSegments();
+  draw();
+
+  document.getElementById("kpiLf").textContent = "0";
+  document.getElementById("kpiPosts").textContent = "0";
+  document.getElementById("kpiSections").textContent = "0";
+  document.getElementById("kpiConcrete").textContent = "0";
+  document.getElementById("kpiTotal").textContent = "$0.00";
+  document.getElementById("kpiDeposit").textContent = "$0.00";
+  document.getElementById("lineItems").innerHTML = "";
+  document.getElementById("materialCounts").innerHTML = "";
+  document.getElementById("quoteBadges").innerHTML = "";
+}
+
+function getSegmentFeet() {
+  return segmentLengths.map(x => Number(x || 0)).filter(x => x > 0);
+}
+
+function toCsv(rows) {
+  return rows.map(row => row.map(cell => {
+    const s = String(cell ?? "");
+    return '"' + s.replaceAll('"', '""') + '"';
+  }).join(",")).join("\r\n");
+}
+
+function downloadText(text, filename, type) {
+  const blob = new Blob([text], {type});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function round2(n) {
+  return Math.round((Number(n) + Number.EPSILON) * 100) / 100;
+}
+
+function money(n) {
+  return Number(n || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+function escapeHtml(s) {
+  return String(s ?? "").replace(/[&<>"']/g, m => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  }[m]));
+}
+</script>
+</body>
+</html>

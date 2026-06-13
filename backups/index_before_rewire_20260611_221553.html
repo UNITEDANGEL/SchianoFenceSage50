@@ -258,6 +258,7 @@ hr {
 </style>
 </head>
 <body>
+<div style='padding:10px;background:#111827;color:white;text-align:center;font-family:Arial;'><a href='gate_quote_workbench.html' style='color:white;font-weight:bold;font-size:16px;'>Open Gate Quote Workbench</a></div>
 <header>
   <div>
     <h1>Sage 50 Fence Quote Builder</h1>
@@ -1576,37 +1577,73 @@ function escapeHtml(s) {
   }[m]));
 }
 </script>
-  <script src="pricing_v5_patch.js"></script>
-  <script src="pricing_v6_shop_rules.js"></script>
-  <script src="pricing_v7_quote_scope.js"></script>
-  <script src="pricing_v8_concrete_scope.js"></script>
-  <script src="pricing_v9_material_default.js"></script>
-  <script src="visual_catalog_v10.js"></script>
-  <script src="pricing_v11_inventory_wholesale.js"></script>
-  <script src="quote_display_v12.js"></script>
-  <script src="layout_gates_v13.js"></script>
-  <script src="quick_quote_v14.js"></script>
-  <script src="payment_element_overrides_v15.js"></script>
-  <script src="drawing_quote_v16.js"></script>
-  <script src="drawing_quote_v17_preview_move_gate.js"></script>
-  <script src="fence_system_preview_v18.js"></script>
-  <script src="quote_print_fix_v19.js"></script>
-  <script src="customer_quote_v20_clear_map_gate_move.js"></script>
-  <script src="drawing_gate_builder_v21.js"></script>
-  <script src="draggable_gate_map_v22.js"></script>
-  <script src="clean_gate_swing_map_v23.js"></script>
-  <script src="unified_customer_print_v24.js"></script>
-  <script src="customer_clear_map_v25.js"></script>
-  <script src="gate_line_drag_map_v26.js"></script>
-
-
-<script src="gate_map_customer_v31.js?v=20260612_205752"></script>
-</body>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <script src="=20260611_215226"></script>
+  <script src="=20260611_215226"></script>
+  <script src="=20260611_215226"></script>
+  <script src="=20260611_215226"></script>
+  <script src="=20260611_215226"></script>
+  <script src="=20260611_215226"></script>
+  <script src="=20260611_215226"></script>
+  <script src="=20260611_215226"></script>
+  <script src="=20260611_215226"></script>
+  <script src="=20260611_215226"></script>
+  <script src="=20260611_215226"></script>
+  <script src="=20260611_215226"></script>
+  <script src="=20260611_215226"></script>
+  <script src="=20260611_215226"></script>
+  <script src="=20260611_215226"></script>
+  <script src="=20260611_215226"></script>
+  <script src="=20260611_215226"></script>
+  <script src="=20260611_215226"></script>
+  <script src="=20260611_215226"></script>
+  <script src="=20260611_215226"></script>
+  <script src="=20260611_215226"></script>
+  <script src="=20260611_215226"></script>
+  <script src="=20260611_215226"></script>
+  <script>
+    window.addEventListener('load', function () {
+      console.log('Sage app rewired from G Drive. Inventory path: ../inventory/schiano_inventory_items.json');
+      var statusBox = document.createElement('div');
+      statusBox.style.cssText = 'position:fixed;right:12px;bottom:12px;z-index:99999;background:#111827;color:white;padding:8px 10px;border-radius:10px;font:12px Arial;box-shadow:0 2px 8px rgba(0,0,0,.25)';
+      statusBox.textContent = 'G Drive app loaded';
+      document.body.appendChild(statusBox);
+      setTimeout(function(){ statusBox.remove(); }, 3500);
+      fetch('../inventory/schiano_inventory_items.json?v=20260611_215226')
+        .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
+        .then(function(data){
+          var count = Array.isArray(data) ? data.length : (data.items ? data.items.length : 0);
+          console.log('Inventory loaded:', count);
+        })
+        .catch(function(err){
+          console.warn('Inventory fetch failed:', err);
+        });
+    });
+  </script></body>
 </html>
-
-
-
-
 
 
 
