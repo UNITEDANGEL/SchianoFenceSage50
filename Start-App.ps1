@@ -1,4 +1,4 @@
-$Root = "G:\My Drive\SAGE_50_INTEGRATE_PROJECT"
+﻿$Root = "G:\My Drive\SAGE_50_INTEGRATE_PROJECT"
 Set-Location -LiteralPath $Root
 $Port = 8789
 Start-Process "http://127.0.0.1:$Port/app/index.html"

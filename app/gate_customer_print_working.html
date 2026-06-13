@@ -1,0 +1,408 @@
+﻿<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Sage 50 Gate / Customer Print Working Page</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#eef2f7;color:#111827}
+.header{background:#111827;color:white;padding:14px 18px}
+.header h1{margin:0;font-size:22px}
+.header .sub{font-size:12px;color:#d1d5db;margin-top:4px}
+.wrap{max-width:1500px;margin:0 auto;padding:14px}
+.grid{display:grid;grid-template-columns:360px 1fr 360px;gap:12px;align-items:start}
+.card{background:white;border:1px solid #d1d5db;border-radius:14px;padding:12px;box-shadow:0 1px 5px rgba(0,0,0,.08);margin-bottom:12px}
+h2{font-size:17px;margin:0 0 8px}
+label{display:block;font-size:12px;font-weight:900;margin-top:7px;color:#374151}
+input,select,textarea{width:100%;border:1px solid #cbd5e1;border-radius:8px;padding:8px;font-size:14px;background:white}
+textarea{min-height:70px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+button{border:0;border-radius:9px;padding:10px 12px;font-weight:900;cursor:pointer}
+.blue{background:#2563eb;color:white}.green{background:#047857;color:white}.red{background:#dc2626;color:white}.gray{background:#4b5563;color:white}
+.small{font-size:12px;color:#6b7280;line-height:1.35}
+.ok{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;padding:8px;border-radius:10px;font-size:12px}
+.warn{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;padding:8px;border-radius:10px;font-size:12px}
+svg{width:100%;height:auto;background:white;border:1px solid #d1d5db;border-radius:14px}
+table{width:100%;border-collapse:collapse;margin-top:8px}
+td,th{border:1px solid #d1d5db;padding:6px;font-size:12px}
+th{background:#f3f4f6;text-align:left}
+.right{text-align:right}
+.gate-photo img{width:100%;max-height:210px;object-fit:contain;border:1px solid #d1d5db;border-radius:10px;background:white}
+.print-only{display:none}
+@media(max-width:1100px){.grid{grid-template-columns:1fr}}
+@media print{
+  .no-print{display:none!important}
+  body{background:white}
+  .wrap{padding:0;max-width:none}
+  .print-only{display:block}
+  @page{size:letter portrait;margin:.3in}
+}
+</style>
+</head>
+<body>
+<div class="header no-print">
+  <h1>Sage 50 Gate / Customer Print Working Page</h1>
+  <div class="sub">Blank map by default. Add gate, drag gate, print customer quote with map and gate image.</div>
+</div>
+<div class="wrap">
+  <div class="grid no-print">
+    <div>
+      <div class="card">
+        <h2>Customer</h2>
+        <label>Quote #</label><input id="quoteNo">
+        <label>Customer Name</label><input id="customerName">
+        <label>Job Address</label><textarea id="jobAddress"></textarea>
+        <label>Notes</label><textarea id="notes"></textarea>
+      </div>
+      <div class="card">
+        <h2>Fence</h2>
+        <div class="row">
+          <div><label>Fence Length Ft</label><input id="fenceLength" type="number" step="0.5" value="48"></div>
+          <div><label>Section Width Ft</label><input id="sectionWidth" type="number" step="0.5" value="8"></div>
+        </div>
+        <div class="row">
+          <div><label>Style</label><input id="style" value="Lakeland"></div>
+          <div><label>Color</label><input id="color" value="White"></div>
+        </div>
+        <label>Height</label><input id="height" value="4 ft">
+        <div class="actions">
+          <button class="blue" onclick="addGate('single')">Add Walk Gate</button>
+          <button class="blue" onclick="addGate('double')">Add Double Driveway Gate</button>
+          <button class="gray" onclick="clearMap()">Blank / Clear Map</button>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Selected Gate</h2>
+        <div id="gateControls" class="warn">No gate added. Map is blank by default.</div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <h2>Map</h2>
+        <div id="mapBox"></div>
+        <p class="small">After adding a gate, drag the orange gate left/right. The cut sections recalculate around the gate.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <h2>Gate Image</h2>
+        <div class="gate-photo" id="gatePhoto"></div>
+      </div>
+      <div class="card">
+        <h2>Inventory</h2>
+        <div id="inventoryStatus" class="warn">Checking inventory...</div>
+      </div>
+      <div class="card">
+        <h2>Customer Print</h2>
+        <div class="actions">
+          <button class="green" onclick="printCustomer()">Print Customer Quote</button>
+        </div>
+        <p class="small">Printout includes customer map, swing direction, gate details, and gate image/sketch.</p>
+      </div>
+    </div>
+  </div>
+  <div id="printArea" class="print-only"></div>
+</div>
+<script>
+let gates = [];
+let selectedGateId = null;
+let dragging = false;
+let dragGateId = null;
+function $(id){ return document.getElementById(id); }
+function val(id,f){ const n = Number($(id).value); return isNaN(n) ? f : n; }
+function txt(id){ return ($(id).value || '').trim(); }
+function gateLabel(g){
+  return g.type === 'double' ? 'Double Driveway Gate' : 'Single Walk Gate';
+}
+function swingLabel(s){
+  return {
+    outswing_left:'Outswing Left',
+    outswing_right:'Outswing Right',
+    inswing_left:'Inswing Left',
+    inswing_right:'Inswing Right'
+  }[s] || 'Outswing Left';
+}
+function sectionText(length){
+  const sw = val('sectionWidth',8);
+  const full = Math.floor(length / sw);
+  const rem = Math.round((length - full * sw) * 100) / 100;
+  if(full === 0 && rem > 0) return rem + "' cut";
+  if(rem > 0) return full + " x " + sw + "' + " + rem + "' cut";
+  return full + " x " + sw + "'";
+}
+function xFromFt(ft){
+  return 70 + (ft / val('fenceLength',48)) * 860;
+}
+function ftFromX(x){
+  const t = Math.max(0, Math.min(1, (x - 70) / 860));
+  return t * val('fenceLength',48);
+}
+function selectedGate(){
+  return gates.find(g => g.id === selectedGateId) || null;
+}
+function addGate(type){
+  const len = val('fenceLength',48);
+  const width = type === 'double' ? 10 : 4;
+  const g = {
+    id:'gate_' + Date.now(),
+    type:type,
+    width:Math.min(width,len),
+    start:Math.max(0, Math.min(len - width, 2)),
+    swing:'outswing_left',
+    color:txt('color') || 'White'
+  };
+  gates.push(g);
+  selectedGateId = g.id;
+  render();
+}
+function clearMap(){
+  gates = [];
+  selectedGateId = null;
+  render();
+}
+function updateGate(){
+  const g = selectedGate();
+  if(!g) return;
+  const len = val('fenceLength',48);
+  g.type = $('gateType').value;
+  g.width = Math.max(1, Math.min(len, Number($('gateWidth').value || g.width)));
+  g.start = Math.max(0, Math.min(len - g.width, Number($('gateStart').value || g.start)));
+  g.swing = $('gateSwing').value;
+  g.color = $('gateColor').value || txt('color') || 'White';
+  render();
+}
+function removeGate(){
+  const g = selectedGate();
+  if(!g) return;
+  gates = gates.filter(x => x.id !== g.id);
+  selectedGateId = gates[0] ? gates[0].id : null;
+  render();
+}
+function buildSvg(printMode){
+  const len = val('fenceLength',48);
+  const y = 180;
+  let svg = `
+  <svg id="gateSvg" viewBox="0 0 1000 380" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#dc2626"></path>
+      </marker>
+    </defs>
+    <rect width="1000" height="380" fill="white"></rect>
+    <text x="500" y="30" text-anchor="middle" font-family="Arial" font-size="20" font-weight="800">Customer Fence Map</text>
+    <text x="500" y="54" text-anchor="middle" font-family="Arial" font-size="13">${txt('style') || 'Fence'} | ${txt('color') || ''} | ${txt('height') || ''} | ${len} ft</text>
+  `;
+  if(gates.length === 0){
+    svg += `
+      <rect x="70" y="110" width="860" height="135" fill="#f9fafb" stroke="#cbd5e1" stroke-dasharray="8 6" rx="12"></rect>
+      <text x="500" y="160" text-anchor="middle" font-family="Arial" font-size="20" font-weight="800" fill="#6b7280">Blank Map</text>
+      <text x="500" y="190" text-anchor="middle" font-family="Arial" font-size="14" fill="#6b7280">Add a gate to place it on the drawing.</text>
+      <text x="500" y="218" text-anchor="middle" font-family="Arial" font-size="14" fill="#6b7280">Map stays blank by default.</text>
+    </svg>`;
+    return svg;
+  }
+  svg += `<line x1="70" y1="${y}" x2="930" y2="${y}" stroke="#111827" stroke-width="8" stroke-linecap="round"></line>`;
+  for(const g of gates){
+    const x1 = xFromFt(g.start);
+    const x2 = xFromFt(g.start + g.width);
+    const mid = (x1+x2)/2;
+    const selected = g.id === selectedGateId;
+    const isIn = g.swing.startsWith('in');
+    const isLeft = g.swing.includes('left');
+    const side = isIn ? 1 : -1;
+    const hingeX = isLeft ? x1 : x2;
+    const gatePx = Math.abs(x2-x1);
+    const openY = y + side * Math.min(110, Math.max(50, gatePx));
+    const arcCX = hingeX + (isLeft ? gatePx*.45 : -gatePx*.45);
+    const arcCY = y + side * Math.min(90, Math.max(35, gatePx*.75));
+    const left = Math.max(0,g.start);
+    const right = Math.max(0,len-(g.start+g.width));
+    svg += `
+      <rect x="${x1}" y="${y-22}" width="${x2-x1}" height="44" fill="white"></rect>
+      <path d="M ${hingeX} ${y} Q ${arcCX} ${arcCY} ${hingeX} ${openY}" fill="none" stroke="#dc2626" stroke-width="5" marker-end="url(#arrow)"></path>
+      <line x1="${hingeX}" y1="${y}" x2="${hingeX}" y2="${openY}" stroke="#dc2626" stroke-width="4"></line>
+      <g class="gateDrag" data-id="${g.id}" style="cursor:grab">
+        <line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="#f97316" stroke-width="${selected?24:18}" stroke-linecap="round"></line>
+        <line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="#7c2d12" stroke-width="2"></line>
+        <circle cx="${x1}" cy="${y}" r="7" fill="#7c2d12"></circle>
+        <circle cx="${x2}" cy="${y}" r="7" fill="#7c2d12"></circle>
+      </g>
+      <text x="${mid}" y="${y+48}" text-anchor="middle" font-family="Arial" font-size="14" font-weight="800" fill="#7c2d12">${g.width}' ${g.type === 'double' ? 'DOUBLE GATE' : 'GATE'}</text>
+      <text x="${mid}" y="${y+68}" text-anchor="middle" font-family="Arial" font-size="12" font-weight="800" fill="#dc2626">${swingLabel(g.swing)}</text>
+      <text x="${Math.max(120,(70+x1)/2)}" y="${y-30}" text-anchor="middle" font-family="Arial" font-size="12" font-weight="700" fill="#1e3a8a">${left>0 ? sectionText(left) : ''}</text>
+      <text x="${Math.min(880,(x2+930)/2)}" y="${y-30}" text-anchor="middle" font-family="Arial" font-size="12" font-weight="700" fill="#1e3a8a">${right>0 ? sectionText(right) : ''}</text>
+    `;
+  }
+  svg += `<text x="70" y="340" font-family="Arial" font-size="12" fill="#4b5563">${printMode ? 'Gate swing and placement shown for customer.' : 'Drag the orange gate left/right.'}</text>`;
+  svg += `</svg>`;
+  return svg;
+}
+function attachDrag(){
+  document.querySelectorAll('.gateDrag').forEach(el => {
+    el.addEventListener('pointerdown', e => {
+      dragging = true;
+      dragGateId = el.getAttribute('data-id');
+      selectedGateId = dragGateId;
+      try{ el.setPointerCapture(e.pointerId); }catch(ex){}
+      e.preventDefault();
+      render();
+    });
+    el.addEventListener('pointermove', e => {
+      if(!dragging || !dragGateId) return;
+      const svg = $('gateSvg');
+      const g = gates.find(x => x.id === dragGateId);
+      if(!svg || !g) return;
+      const rect = svg.getBoundingClientRect();
+      const viewX = (e.clientX - rect.left) * (1000 / rect.width);
+      const center = ftFromX(viewX);
+      const len = val('fenceLength',48);
+      let start = center - g.width/2;
+      start = Math.max(0, Math.min(len-g.width, start));
+      g.start = Math.round(start*100)/100;
+      render();
+    });
+    el.addEventListener('pointerup', () => { dragging = false; dragGateId = null; });
+    el.addEventListener('pointercancel', () => { dragging = false; dragGateId = null; });
+  });
+}
+function renderGateControls(){
+  const g = selectedGate();
+  if(!g){
+    $('gateControls').className = 'warn';
+    $('gateControls').innerHTML = 'No gate added. Map is blank by default.';
+    return;
+  }
+  $('gateControls').className = '';
+  $('gateControls').innerHTML = `
+    <div class="row">
+      <div>
+        <label>Gate Type</label>
+        <select id="gateType">
+          <option value="single" ${g.type==='single'?'selected':''}>Single Walk Gate</option>
+          <option value="double" ${g.type==='double'?'selected':''}>Double Driveway Gate</option>
+        </select>
+      </div>
+      <div>
+        <label>Gate Width Ft</label>
+        <input id="gateWidth" type="number" step="0.5" value="${g.width}">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Gate Start Ft</label>
+        <input id="gateStart" type="number" step="0.5" value="${g.start}">
+      </div>
+      <div>
+        <label>Gate Swing</label>
+        <select id="gateSwing">
+          <option value="outswing_left" ${g.swing==='outswing_left'?'selected':''}>Outswing Left</option>
+          <option value="outswing_right" ${g.swing==='outswing_right'?'selected':''}>Outswing Right</option>
+          <option value="inswing_left" ${g.swing==='inswing_left'?'selected':''}>Inswing Left</option>
+          <option value="inswing_right" ${g.swing==='inswing_right'?'selected':''}>Inswing Right</option>
+        </select>
+      </div>
+    </div>
+    <label>Gate Color</label>
+    <input id="gateColor" value="${g.color || txt('color') || 'White'}">
+    <div class="actions">
+      <button class="blue" onclick="updateGate()">Update Gate</button>
+      <button class="red" onclick="removeGate()">Remove Gate</button>
+    </div>
+  `;
+}
+function renderPhoto(){
+  const html = `
+    <img src="../catalog_images/White-4-ft-Lakeland-with-single-gate.jpg" onerror="
+      this.onerror=null;
+      this.style.display='none';
+      this.parentElement.insertAdjacentHTML('beforeend', '<svg viewBox=&quot;0 0 500 220&quot; width=&quot;100%&quot; height=&quot;180&quot;><rect width=&quot;500&quot; height=&quot;220&quot; fill=&quot;white&quot;/><line x1=&quot;40&quot; y1=&quot;150&quot; x2=&quot;460&quot; y2=&quot;150&quot; stroke=&quot;#111827&quot; stroke-width=&quot;8&quot;/><rect x=&quot;205&quot; y=&quot;75&quot; width=&quot;90&quot; height=&quot;75&quot; fill=&quot;none&quot; stroke=&quot;#f97316&quot; stroke-width=&quot;8&quot;/><path d=&quot;M205 150 Q250 75 295 150&quot; fill=&quot;none&quot; stroke=&quot;#dc2626&quot; stroke-width=&quot;4&quot;/><text x=&quot;250&quot; y=&quot;195&quot; text-anchor=&quot;middle&quot; font-family=&quot;Arial&quot; font-size=&quot;18&quot; font-weight=&quot;700&quot;>Gate Sketch</text></svg>');
+    ">
+  `;
+  $('gatePhoto').innerHTML = html;
+}
+function render(){
+  $('mapBox').innerHTML = buildSvg(false);
+  renderGateControls();
+  renderPhoto();
+  attachDrag();
+}
+function checkInventory(){
+  fetch('../inventory/schiano_inventory_items.json')
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      const count = Array.isArray(data) ? data.length : (data && data.items ? data.items.length : 0);
+      $('inventoryStatus').className = count ? 'ok' : 'warn';
+      $('inventoryStatus').textContent = count ? 'Inventory loaded: ' + count + ' items' : 'Inventory file found, but no items detected.';
+    })
+    .catch(() => {
+      $('inventoryStatus').className = 'warn';
+      $('inventoryStatus').textContent = 'Inventory not loaded.';
+    });
+}
+function printCustomer(){
+  const rows = gates.length ? gates.map(g => `
+    <tr>
+      <td>${gateLabel(g)}</td>
+      <td class="right">${g.width}'</td>
+      <td class="right">${g.start}' from start</td>
+      <td>${swingLabel(g.swing)}</td>
+    </tr>
+  `).join('') : '<tr><td colspan="4">No gate added.</td></tr>';
+  const printHtml = `
+    <div style="font-family:Arial,sans-serif;color:#111827">
+      <h1 style="font-size:22px;margin:0 0 8px">Fence Quote</h1>
+      <div style="display:grid;grid-template-columns:1.2fr .8fr;gap:12px">
+        <div style="border:1px solid #d1d5db;border-radius:10px;padding:10px">
+          <div><b>Quote #:</b> ${txt('quoteNo')}</div>
+          <div><b>Customer:</b> ${txt('customerName')}</div>
+          <div><b>Address:</b> ${txt('jobAddress')}</div>
+          <div><b>Fence:</b> ${txt('style')} | ${txt('color')} | ${txt('height')}</div>
+        </div>
+        <div style="border:1px solid #d1d5db;border-radius:10px;padding:10px">
+          <b>Gate Image</b>
+          ${$('gatePhoto').innerHTML}
+        </div>
+      </div>
+      <h2 style="font-size:16px;margin:12px 0 6px">Customer Map</h2>
+      ${buildSvg(true)}
+      <h2 style="font-size:16px;margin:12px 0 6px">Gate Details</h2>
+      <table style="width:100%;border-collapse:collapse">
+        <tr><th style="border:1px solid #d1d5db;padding:6px;background:#f3f4f6;text-align:left">Gate</th><th style="border:1px solid #d1d5db;padding:6px;background:#f3f4f6">Width</th><th style="border:1px solid #d1d5db;padding:6px;background:#f3f4f6">Location</th><th style="border:1px solid #d1d5db;padding:6px;background:#f3f4f6;text-align:left">Swing</th></tr>
+        ${rows}
+      </table>
+      <h2 style="font-size:16px;margin:12px 0 6px">Notes</h2>
+      <div>${txt('notes')}</div>
+    </div>
+  `;
+  const w = window.open('', '_blank');
+  if(!w){ alert('Popup blocked. Allow popups.'); return; }
+  w.document.open();
+  w.document.write(`
+    <html>
+    <head>
+      <title>Customer Quote</title>
+      <style>
+        body{margin:18px;font-family:Arial,sans-serif;font-size:12px}
+        svg{width:100%;height:auto;max-height:4in}
+        img{max-width:100%;max-height:2in;object-fit:contain}
+        td,th{border:1px solid #d1d5db;padding:6px;font-size:11px}
+        .right{text-align:right}
+        @page{size:letter portrait;margin:.3in}
+      </style>
+    </head>
+    <body>${printHtml}</body>
+    </html>
+  `);
+  w.document.close();
+  w.focus();
+  setTimeout(() => w.print(), 500);
+}
+document.addEventListener('DOMContentLoaded', () => {
+  if(!txt('quoteNo')) $('quoteNo').value = 'Q-' + new Date().getFullYear() + '-' + Math.floor(Math.random()*9000+1000);
+  render();
+  checkInventory();
+});
+</script>
+</body>
+</html>
